@@ -35,7 +35,9 @@ pip install numpy pillow matplotlib
 python -m mapa.puertos      # escalas, ancla SRTM e historial (API del INA)
 python -m mapa.niveles      # alturas y pronósticos
 python -m mapa.barrios      # barrios y elevación (opcional: ya están en mapa/datos)
-python -m mapa.armar web    # arma mapa/dist/
+python -m mapa.armar         # portada, datos y tramos en mapa/dist/
+python -m mapa.paginas       # páginas de ríos, puertos y contenido + sitemap
+python -m mapa.og            # imágenes para compartir
 cd mapa/dist && python -m http.server
 ```
 

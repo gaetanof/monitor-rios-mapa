@@ -62,6 +62,9 @@ def get_bytes(url: str, intentos: int = 4, timeout: int = 120) -> bytes:
     raise RuntimeError(f"{url}: {ultimo}")
 
 
+ULTIMA_HORA: dict[int, str] = {}   # serie -> "AAAA-MM-DDTHH:MM" (hora argentina) de la última lectura bajada
+
+
 def observaciones(serie: int, desde: str, hasta: str) -> list[tuple[str, float]]:
     """Lecturas (fecha local AAAA-MM-DD, valor) de una serie de alturas del INA. Un valor por día (promedio)."""
     q = urllib.parse.urlencode({"timestart": desde + "T00:00:00Z", "timeend": hasta + "T23:59:59Z", "format": "json"})
@@ -77,8 +80,12 @@ def observaciones(serie: int, desde: str, hasta: str) -> list[tuple[str, float]]
         # hora argentina (UTC-3): la lectura de Prefectura es de la mañana
         t = f["timestart"][:19].replace("Z", "")
         from datetime import datetime, timedelta
-        d = (datetime.fromisoformat(t) - timedelta(hours=3)).date().isoformat()
+        loc = datetime.fromisoformat(t) - timedelta(hours=3)
+        d = loc.date().isoformat()
         por_dia.setdefault(d, []).append(v)
+        hh = loc.strftime("%Y-%m-%dT%H:%M")
+        if hh > ULTIMA_HORA.get(serie, ""):
+            ULTIMA_HORA[serie] = hh
     return sorted((d, sum(v) / len(v)) for d, v in por_dia.items())
 
 

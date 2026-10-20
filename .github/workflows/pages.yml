@@ -53,8 +53,11 @@ jobs:
           git commit -m "barrios recalculados" && git push || echo "sin cambios"
       - name: Alturas y pronóstico
         run: python -m mapa.niveles
-      - name: Armar la página
-        run: python -m mapa.armar web
+      - name: Armar el sitio (portada, páginas de ríos y puertos, imágenes para compartir, sitemap)
+        run: |
+          python -m mapa.armar
+          python -m mapa.paginas
+          python -m mapa.og
       - uses: actions/upload-pages-artifact@v3
         with:
           path: mapa/dist

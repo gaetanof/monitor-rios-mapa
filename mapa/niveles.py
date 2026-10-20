@@ -18,7 +18,7 @@ import sys
 import urllib.parse
 from datetime import date, datetime, timedelta, timezone
 
-from .comun import (INA, PUERTOS, escribir_cache, get_json, guardar, leer_cache, observaciones)
+from .comun import (INA, PUERTOS, ULTIMA_HORA, escribir_cache, get_json, guardar, leer_cache, observaciones)
 
 DIAS_ATRAS, DIAS_ADELANTE = 30, 30
 R_MIN = 0.6
@@ -68,13 +68,13 @@ def _interp(serie: list[tuple[str, float]], dia: str) -> float | None:
     return serie[-1][1] if dia == serie[-1][0] else None
 
 
-def sin_saltos(obs: dict[str, float]) -> dict[str, float]:
+def sin_saltos(obs: dict[str, float], tope: float = 1.0) -> dict[str, float]:
     """Saca lecturas sueltas que saltan más de 1 m respecto de los días vecinos (errores de carga)."""
     dias = sorted(obs)
     out = {}
     for k, d in enumerate(dias):
         vec = [obs[x] for x in dias[max(0, k - 3):k] + dias[k + 1:k + 4]]
-        if len(vec) >= 2 and abs(obs[d] - statistics.median(vec)) > 1.0:
+        if len(vec) >= 2 and abs(obs[d] - statistics.median(vec)) > tope:
             continue
         out[d] = obs[d]
     return out
@@ -234,10 +234,17 @@ def construir(con_glofas: bool = True) -> dict:
                 continue
             v, s = None, None
             if base is not None and ult and d > ult:
+                # empalme continuo: cada serie arranca desde el último valor ya calculado (medido o pronóstico),
+                # así no hay saltos cuando termina el pronóstico diario y sigue el semanal
+                k = len(H) - 1
+                while k >= 0 and H[k] is None:
+                    k -= 1
+                ref_d, ref_v = (dias[k], H[k]) if k >= 0 else (ult, base)
                 for serie, tag in ((diario.get(p["id"]), "i"), (semanal.get(p["id"]), "s")):
-                    f1, f0 = _interp(serie or [], d), _interp(serie or [], ult)
+                    f1 = _interp(serie or [], d)
+                    f0 = _interp(serie or [], ref_d)
                     if f1 is not None and f0 is not None:
-                        v, s = base + f1 - f0, "i"
+                        v, s = ref_v + f1 - f0, "i"
                         fuentes.append(tag)
                         break
                 if v is None and p["id"] in gq and d in gq[p["id"]]:
@@ -252,16 +259,19 @@ def construir(con_glofas: bool = True) -> dict:
                         fuentes.append("g")
             H.append(round(v, 2) if v is not None else None); S.append(s)
         c = cv.get(str(p["id"]), {})
-        hv = sorted(v for _, v in p.get("hist") or [])
+        limpio = sin_saltos(dict(p.get("hist") or []), tope=1.5)
+        if p.get("evac") is not None:   # lecturas imposibles (otra escala mezclada, error de carga)
+            limpio = {d: v for d, v in limpio.items() if v <= p["evac"] + 6}
+        hv = sorted(limpio.values())
         q = [round(hv[min(len(hv) - 1, int(k / 100 * (len(hv) - 1) + .5))], 2) for k in range(101)] if len(hv) > 200 else None
-        mx = max(p.get("hist") or [("", None)], key=lambda x: x[1] if x[1] is not None else -1e9)
+        mx = max(limpio.items(), key=lambda x: x[1]) if limpio else ("", None)
         salida.append({
             "id": p["id"], "n": p["nombre"], "rio": p["rio"], "c": p["c"], "al": p["alerta"], "ev": p["evac"],
             "ancla": p["ancla"], "ancla_est": p.get("ancla_est", False), "med": p["mediana"],
             "H": H, "src": "".join(x or "-" for x in S),
             "curva": {"b": c["b"], "r": c["r"]} if c.get("ok") else None,
             "fuentes": sorted(set(fuentes)),
-            "q": q, "max": [mx[0], round(mx[1], 2)] if mx[1] is not None else None,
+            "hora": ULTIMA_HORA.get(p["id"]), "q": q, "max": [mx[0], round(mx[1], 2)] if mx[1] is not None else None,
         })
     doc = {"generado": datetime.now(timezone.utc).isoformat(timespec="minutes"), "hoy": hoy.isoformat(),
            "dias": dias, "puertos": salida}
