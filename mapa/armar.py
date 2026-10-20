@@ -82,19 +82,19 @@ def prerender(B: dict, N: dict, hoy: int) -> dict[str, str]:
     bs = B["barrios"]
     r2, r1 = [b for b in bs if b["S"][hoy] == 2], [b for b in bs if b["S"][hoy] == 1]
     fam = lambda l: num(sum(b["fam"] or 0 for b in l), 0)
-    resumen = (f'<span class="lin"><b class="t-evac">{len(r2)} barrios</b> con agua probable · {fam(r2)} familias</span>'
-               f'<span class="lin"><b class="t-alerta">{len(r1)} barrios</b> cerca del agua · {fam(r1)} familias</span>')
+    resumen = (f'<span class="lin"><b class="t-evac">{len(r2)} barrios</b> con agua probable</span>'
+               f'<span class="lin"><b class="t-alerta">{len(r1)} barrios</b> cerca del agua</span>')
     filas = sorted(r2 + r1, key=lambda b: (-b["S"][hoy], -(b["R"][hoy] - b["h25"])))[:15]
     lista = "".join(
         f'<a class="fila" href="#b{b["id"]}"><span class="t"><b>{E(b["n"])}</b><span>{E(b["loc"])}, {E(b["prov"])} · '
-        f'{num(b["fam"] or 0, 0)} familias</span></span><span class="m">'
+        f'río {RIO_NOMBRE[b["rio"]]}</span></span><span class="m">'
         f'{"agua " + num(b["R"][hoy] - b["h25"], 1) + " m arriba" if b["S"][hoy] == 2 else "faltan " + num(b["h25"] - b["R"][hoy], 1) + " m"}</span></a>'
         for b in filas)
     pts = []
     for rio in RIO_NOMBRE:
         pts.append(f'<h3 class="grupo">Río {RIO_NOMBRE[rio]}</h3>')
         for p in N["puertos"]:
-            if p["rio"] != rio or p["H"][hoy] is None:
+            if p["rio"] != rio or p["H"][hoy] is None or not p.get("activo", True):
                 continue
             e = estado_puerto(p, hoy)
             est = "~" if p["src"][hoy] != "m" else ""
@@ -104,7 +104,7 @@ def prerender(B: dict, N: dict, hoy: int) -> dict[str, str]:
     al = sum(1 for p in N["puertos"] if p["H"][hoy] is not None and estado_puerto(p, hoy) == "alerta")
     return {"FECHA": f"Hoy, {fecha_txt(N['hoy'], True)}", "RESUMEN": resumen,
             "LISTA": f'<h3 class="grupo">Barrios más cerca del agua</h3>{lista}', "PUERTOS": "".join(pts),
-            "SUB1": f"{len(r2)} con agua probable · {len(r1)} cerca", "SUB2": f"{ev} en evacuación · {al} en alerta",
+            "SUB1": f"{len(r2)} con agua probable · {len(r1)} cerca", "SUB2": f'<span class="lin"><b class="t-evac">{ev} en evacuación</b> · <b class="t-alerta">{al} en alerta</b></span>',
             "_r2": len(r2), "_f2": fam(r2), "_r1": len(r1)}
 
 

@@ -45,15 +45,19 @@ def _local(ts: str) -> str:
     return (t.astimezone(timezone.utc) - timedelta(hours=3)).date().isoformat()
 
 
-def pronostico_ina(cal: int) -> dict[int, list[tuple[str, float]]]:
+def pronostico_ina(cal: int) -> dict[int, dict[str, list[tuple[str, float]]]]:
+    """Última corrida: por serie, listas (día, valor) del valor medio y, si las hay, de las bandas inferior y superior."""
     d = get_json(f"{INA}/sim/calibrados/{cal}/corridas/last?format=json&includeProno=true")
-    out: dict[int, list[tuple[str, float]]] = {}
+    out: dict[int, dict] = {}
+    q_de = {"main": "m", "medio": "m", "min": "lo", "inferior": "lo", "max": "hi", "superior": "hi"}
     for s in d.get("series", []):
-        filas: dict[str, float] = {}
+        filas: dict[str, dict[str, float]] = {}
         for p in s.get("pronosticos") or []:
-            if (p.get("qualifier") or "main") in ("main", "medio"):
-                filas[_local(p["timestart"])] = float(p["valor"])
-        out[int(s["series_id"])] = sorted(filas.items())
+            k = q_de.get(p.get("qualifier") or "main")
+            if k:
+                filas.setdefault(k, {})[_local(p["timestart"])] = float(p["valor"])
+        if filas.get("m"):
+            out[int(s["series_id"])] = {k: sorted(v.items()) for k, v in filas.items()}
     return out
 
 
@@ -110,7 +114,8 @@ FLOOD = "https://flood-api.open-meteo.com/v1/flood"
 
 def _flood(lats, lons, **kw) -> list[dict]:
     q = {"latitude": ",".join(f"{x:.3f}" for x in lats), "longitude": ",".join(f"{x:.3f}" for x in lons),
-         "daily": "river_discharge", **kw}
+         "daily": "river_discharge"}
+    q.update(kw)
     r = get_json(FLOOD + "?" + urllib.parse.urlencode(q), timeout=120)
     return r if isinstance(r, list) else [r]
 
@@ -164,13 +169,20 @@ def glofas_pronostico(puertos: list[dict], cv: dict) -> dict[int, dict[str, floa
     for i in range(0, len(pts), 40):
         lote = pts[i:i + 40]
         try:
-            res = _flood([c[1] for _, c in lote], [c[0] for _, c in lote], past_days=7, forecast_days=30)
-        except Exception as e:  # noqa: BLE001
-            print("glofas pronóstico", e, file=sys.stderr)
-            continue
+            res = _flood([c[1] for _, c in lote], [c[0] for _, c in lote], past_days=7, forecast_days=30,
+                         daily="river_discharge,river_discharge_p25,river_discharge_p75")
+        except Exception:  # noqa: BLE001
+            try:
+                res = _flood([c[1] for _, c in lote], [c[0] for _, c in lote], past_days=7, forecast_days=30)
+            except Exception as e:  # noqa: BLE001
+                print("glofas pronóstico", e, file=sys.stderr)
+                continue
         for (pid, _), r in zip(lote, res):
             d = r.get("daily", {})
-            out[pid] = {t: q for t, q in zip(d.get("time", []), d.get("river_discharge", [])) if q}
+            t = d.get("time", [])
+            q, q25, q75 = d.get("river_discharge", []), d.get("river_discharge_p25") or [], d.get("river_discharge_p75") or []
+            out[pid] = {t[k]: (q[k], q25[k] if k < len(q25) else None, q75[k] if k < len(q75) else None)
+                        for k in range(len(t)) if q[k]}
     return out
 
 
@@ -222,42 +234,97 @@ def construir(con_glofas: bool = True) -> dict:
             print("GloFAS no disponible:", e, file=sys.stderr)
 
     salida = []
+    T = len(dias)
+    hoy_i = dias.index(hoy.isoformat())
+    calc: dict[int, dict] = {}
     for p in puertos:
         obs = sin_saltos(rec.get(p["id"], {}))
-        H, S = [], []
+        H, L, U, S = [None] * T, [None] * T, [None] * T, [None] * T
         ult = max((d for d in obs if d <= hoy.isoformat()), default=None)
         base = obs[ult] if ult else None
         fuentes = []
-        for d in dias:
+        for k, d in enumerate(dias):
             if d in obs:
-                H.append(round(obs[d], 2)); S.append("m")
+                H[k] = L[k] = U[k] = round(obs[d], 2); S[k] = "m"
                 continue
-            v, s = None, None
-            if base is not None and ult and d > ult:
-                # empalme continuo: cada serie arranca desde el último valor ya calculado (medido o pronóstico),
-                # así no hay saltos cuando termina el pronóstico diario y sigue el semanal
-                k = len(H) - 1
-                while k >= 0 and H[k] is None:
-                    k -= 1
-                ref_d, ref_v = (dias[k], H[k]) if k >= 0 else (ult, base)
-                for serie, tag in ((diario.get(p["id"]), "i"), (semanal.get(p["id"]), "s")):
-                    f1 = _interp(serie or [], d)
-                    f0 = _interp(serie or [], ref_d)
-                    if f1 is not None and f0 is not None:
-                        v, s = ref_v + f1 - f0, "i"
-                        fuentes.append(tag)
-                        break
-                if v is None and p["id"] in gq and d in gq[p["id"]]:
-                    q = gq[p["id"]]
-                    # empalme: desde el último valor conocido (medido o INA)
-                    k = len(H) - 1
-                    while k >= 0 and H[k] is None:
-                        k -= 1
-                    ref_d = dias[k] if k >= 0 else None
-                    if ref_d and q.get(ref_d):
-                        v, s = H[k] + cv[str(p["id"])]["b"] * math.log(q[d] / q[ref_d]), "g"
-                        fuentes.append("g")
-            H.append(round(v, 2) if v is not None else None); S.append(s)
+            if base is None or not ult or d <= ult:
+                continue
+            # empalme continuo: cada serie arranca desde el último valor ya calculado (medido o pronóstico)
+            j = k - 1
+            while j >= 0 and H[j] is None:
+                j -= 1
+            ref_d, ref_v = (dias[j], H[j]) if j >= 0 else (ult, base)
+            for serie, tag in ((diario.get(p["id"]), "i"), (semanal.get(p["id"]), "s")):
+                if not serie:
+                    continue
+                f1, f0 = _interp(serie["m"], d), _interp(serie["m"], ref_d)
+                if f1 is not None and f0 is None and ref_d < serie["m"][0][0]:
+                    f0 = serie["m"][0][1]   # la corrida arranca después de la última lectura: se empalma en su primer día
+                if f1 is None or f0 is None:
+                    continue
+                H[k], S[k] = ref_v + f1 - f0, "i"
+                lo, hi = _interp(serie.get("lo") or [], d), _interp(serie.get("hi") or [], d)
+                L[k] = ref_v + lo - f0 if lo is not None else H[k]
+                U[k] = ref_v + hi - f0 if hi is not None else H[k]
+                fuentes.append(tag)
+                break
+            if H[k] is None and p["id"] in gq and d in gq[p["id"]] and ref_d in gq[p["id"]]:
+                b_ = cv[str(p["id"])]["b"]
+                q, q25, q75 = gq[p["id"]][d]
+                q0 = gq[p["id"]][ref_d][0]
+                H[k], S[k] = ref_v + b_ * math.log(q / q0), "g"
+                L[k] = ref_v + b_ * math.log(q25 / q0) if q25 else H[k]
+                U[k] = ref_v + b_ * math.log(q75 / q0) if q75 else H[k]
+                fuentes.append("g")
+        calc[p["id"]] = dict(H=H, L=L, U=U, S=S, ult=ult, base=base, fuentes=fuentes)
+
+    # sin pronóstico propio: se usa la variación de la escala vecina del mismo río que sí tiene (marcado "v")
+    orden = {}
+    for i, p in enumerate(puertos):
+        orden.setdefault(p["rio"], []).append(p["id"])
+    for p in puertos:
+        c = calc[p["id"]]
+        if c["base"] is None:
+            continue
+        ui = dias.index(c["ult"])
+        lista = next((tr for tr in TRAMOS if p["id"] in tr), orden[p["rio"]])   # vecinas del mismo tramo (no se mezcla río con embalse)
+        lista = [x for x in lista if x in calc]
+        pos = lista.index(p["id"])
+        vecinos = sorted((x for x in lista if x != p["id"]), key=lambda x: abs(lista.index(x) - pos))
+        for k in range(ui + 1, T):
+            if c["H"][k] is not None:
+                continue
+            for v in vecinos[:4]:
+                n = calc[v]
+                if n["H"][k] is not None and n["H"][ui] is not None and n["S"][k] in ("i", "g"):
+                    c["H"][k] = c["base"] + n["H"][k] - n["H"][ui]
+                    c["L"][k] = c["base"] + (n["L"][k] if n["L"][k] is not None else n["H"][k]) - n["H"][ui]
+                    c["U"][k] = c["base"] + (n["U"][k] if n["U"][k] is not None else n["H"][k]) - n["H"][ui]
+                    c["S"][k] = "v"
+                    c["vecino"] = v
+                    break
+        # huecos de días pasados: se repite la última lectura hasta 4 días (marcado "u")
+        for k in range(1, hoy_i + 1):
+            if c["H"][k] is None and c["H"][k - 1] is not None and c["S"][k - 1] in ("m", "u"):
+                j = k - 1
+                while j >= 0 and c["S"][j] == "u":
+                    j -= 1
+                if k - j <= 4:
+                    c["H"][k], c["L"][k], c["U"][k], c["S"][k] = c["H"][k - 1], c["L"][k - 1], c["U"][k - 1], "u"
+
+        # sin ningún pronóstico: se repite el último valor, marcado "p" (persistencia)
+        for k in range(1, T):
+            if c["H"][k] is None and c["H"][k - 1] is not None and k > ui:
+                c["H"][k], c["L"][k], c["U"][k], c["S"][k] = c["H"][k - 1], c["L"][k - 1], c["U"][k - 1], "p"
+
+    for p in puertos:
+        cc = calc[p["id"]]
+        H = [round(v, 2) if v is not None else None for v in cc["H"]]
+        Lr = [round(v, 2) if v is not None else None for v in cc["L"]]
+        Ur = [round(v, 2) if v is not None else None for v in cc["U"]]
+        S = cc["S"]
+        fuentes = cc["fuentes"] + (["v"] if cc.get("vecino") else [])
+        activo = any(s == "m" for s in S[max(0, hoy_i - 10):hoy_i + 1])
         c = cv.get(str(p["id"]), {})
         limpio = sin_saltos(dict(p.get("hist") or []), tope=1.5)
         if p.get("evac") is not None:   # lecturas imposibles (otra escala mezclada, error de carga)
@@ -268,7 +335,8 @@ def construir(con_glofas: bool = True) -> dict:
         salida.append({
             "id": p["id"], "n": p["nombre"], "rio": p["rio"], "c": p["c"], "al": p["alerta"], "ev": p["evac"],
             "ancla": p["ancla"], "ancla_est": p.get("ancla_est", False), "med": p["mediana"],
-            "H": H, "src": "".join(x or "-" for x in S),
+            "H": H, "L": Lr, "U": Ur, "src": "".join(x or "-" for x in S), "activo": activo,
+            "vecino": cc.get("vecino"),
             "curva": {"b": c["b"], "r": c["r"]} if c.get("ok") else None,
             "fuentes": sorted(set(fuentes)),
             "hora": ULTIMA_HORA.get(p["id"]), "q": q, "max": [mx[0], round(mx[1], 2)] if mx[1] is not None else None,

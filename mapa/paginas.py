@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 
 from .comun import CACHE, RAIZ, SALIDA
-from .web import (BASE, ESTADO_TXT, RIO_NOMBRE, cargar, estado_puerto, estados_barrios, fecha_txt, generado_local,
+from .web import (activos, BASE, ESTADO_TXT, RIO_NOMBRE, cargar, estado_puerto, estados_barrios, fecha_txt, generado_local,
                   nombre_puerto, num, slug_puerto, ultimo_medido, variacion)
 
 DIST = RAIZ / "dist"
@@ -205,7 +205,7 @@ def construir() -> None:
     hoy = N["dias"].index(N["hoy"]) if N["hoy"] in N["dias"] else 30
     gen = generado_local(N)
     gen_txt = f"Datos actualizados el {gen.strftime('%d/%m/%Y a las %H:%M')}"
-    P = [p for p in N["puertos"] if any(v is not None for v in p["H"])]
+    P = activos(N)
     por_rio = {r: sorted([p for p in P if p["rio"] == r], key=lambda p: p.get("orden", 0)) for r in RIO_NOMBRE}
     orden_global = {p["id"]: i for i, p in enumerate(N["puertos"])}
     for r in por_rio:
@@ -273,11 +273,14 @@ def construir() -> None:
                 v, s = p["H"][t], p["src"][t]
                 if v is None:
                     continue
-                fu = "INA (oficial)" if s == "i" else "GloFAS (modelo)" if s == "g" else "Prefectura"
+                fu = {"i": "INA (oficial)", "g": "GloFAS (modelo)", "v": "escala vecina (estimación)", "p": "sin pronóstico (última lectura)"}.get(s, "Prefectura")
+                if s == "p":
+                    continue
+                rng = f'{num(p["L"][t])} a {num(p["U"][t])} m' if p.get("L") and p["L"][t] is not None and p["U"][t] - p["L"][t] >= .02 else ""
                 e = estado_puerto(p, t)
-                filas.append(f'<tr><td>{fecha_txt(N["dias"][t], True)}</td><td class="n">~{num(v)} m</td>'
+                filas.append(f'<tr><td>{fecha_txt(N["dias"][t], True)}</td><td class="n"><b>~{num(v)} m</b></td><td class="n">{rng}</td>'
                              f'<td>{icono(e, True)} {ESTADO_TXT[e]}</td><td>{fu}</td></tr>')
-            pron = (f'<div class="tabla"><table><thead><tr><th>Día</th><th>Altura esperada</th><th>Estado</th><th>Fuente</th></tr></thead>'
+            pron = (f'<div class="tabla"><table><thead><tr><th>Día</th><th>Nivel esperado</th><th>Rango</th><th>Estado</th><th>Fuente</th></tr></thead>'
                     f'<tbody>{"".join(filas)}</tbody></table></div><p class="sub">El pronóstico se empalma con la última lectura de Prefectura. '
                     f'Puede cambiar en la próxima actualización.</p>') if filas else "<p>No hay pronóstico para esta escala.</p>"
             # barrios

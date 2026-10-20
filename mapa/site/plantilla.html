@@ -81,20 +81,19 @@ h1{margin:0;font-size:26px;line-height:1.1;font-weight:800;letter-spacing:-.025e
 .seg button{flex:1;border:0;background:none;border-radius:8px;min-height:38px;font-size:13.5px;font-weight:600;color:var(--ink-2)}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.14)}
 
-/* secciones excluyentes */
-.secs{display:flex;flex-direction:column;min-height:0;flex:1}
-.sec{display:flex;flex-direction:column;min-height:0;flex:none;border-bottom:1px solid var(--line)}
-.sec[data-abierta="true"]{flex:1}
-.sec h2{margin:0}
-.sec h2 button{width:100%;display:grid;grid-template-columns:18px 1fr;column-gap:8px;align-items:center;text-align:left;border:0;
-  background:var(--surface);padding:10px 16px;min-height:56px}
-.sec h2 button:hover{background:var(--surface-2)}
-.chev{width:18px;height:18px;transition:transform var(--t) var(--ease);color:var(--ink-3)}
-.sec[data-abierta="true"] .chev{transform:rotate(90deg)}
-.st{font-size:15.5px;font-weight:700}
-.ss{grid-column:2;font-size:13px;color:var(--ink-2);font-weight:500}
-.cuerpo{overflow:auto;min-height:0;flex:1;overscroll-behavior:contain}
-.sec[data-abierta="false"] .cuerpo{display:none}
+/* dos funciones: pestañas grandes */
+.modos{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface-2);border-radius:12px;padding:4px}
+.modos button{display:flex;align-items:center;gap:8px;text-align:left;border:0;background:none;border-radius:9px;padding:8px 10px;min-height:52px;color:var(--ink-2)}
+.modos button b{display:block;font-size:14.5px;line-height:1.2;color:inherit}
+.modos button small{display:block;font-size:12px;color:var(--ink-3);font-weight:500}
+.modos button svg{flex:none}
+.modos button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.16)}
+.modos button[aria-selected="true"] svg{color:var(--water)}
+.modos button[aria-selected="true"] small{color:var(--ink-2)}
+.titulo{display:grid;gap:4px}
+.vistas{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain}
+.vista{padding-top:10px}
+.prono{display:block;font-size:12.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .resumen{margin:0;padding:4px 16px 10px;display:grid;gap:2px;font-size:14.5px}
 .resumen .lin{display:block}
 .acc{display:flex;gap:8px;padding:0 16px 10px;flex-wrap:wrap}
@@ -132,15 +131,13 @@ a.fila{grid-template-columns:minmax(0,1fr) auto}
 .sw{display:flex;background:var(--surface);border-radius:var(--r-m);box-shadow:var(--sh-2);padding:3px}
 .sw button{border:0;background:none;min-height:38px;padding:0 12px;border-radius:8px;font-size:13px;font-weight:600;color:var(--ink-2)}
 .sw button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
-.btn-ref{display:none}
-.ley{position:absolute;z-index:3;left:calc(var(--panel-w) + 24px + env(safe-area-inset-left,0px));bottom:132px;background:var(--surface);
-  border-radius:var(--r-m);box-shadow:var(--sh-2);font-size:12.5px;color:var(--ink-2);width:250px}
-.ley summary{cursor:pointer;list-style:none;padding:10px 12px;font-weight:700;color:var(--ink);font-size:13px;min-height:40px;display:flex;align-items:center;gap:6px}
-.ley summary::-webkit-details-marker{display:none}
-.ley .c{padding:0 12px 12px;display:grid;gap:6px}
+.ley{position:absolute;z-index:6;top:calc(max(12px,env(safe-area-inset-top,0px)) + 52px);right:max(12px,env(safe-area-inset-right,0px));
+  width:272px;max-height:calc(100% - 200px);overflow:auto;background:var(--surface);border-radius:var(--r-m);box-shadow:var(--sh-3);
+  font-size:12.5px;color:var(--ink-2);padding:10px 12px 12px;display:grid;gap:6px}
 .ley h5{margin:6px 0 0;font-size:12px;color:var(--ink);font-weight:700}
 .ley .r{display:flex;align-items:center;gap:8px}
 .ley svg{flex:none}
+#b-ref[aria-expanded="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 .placa{position:absolute;z-index:3;top:max(16px,env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--surface);
   border-radius:999px;padding:8px 16px;font-weight:700;font-size:17px;box-shadow:var(--sh-3);white-space:nowrap}
 .maplibregl-ctrl-group button{width:40px!important;height:40px!important}
@@ -195,6 +192,13 @@ details.met div{padding:0 0 12px;font-size:13.5px;color:var(--ink-2);display:gri
 .grande{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .grande .v{font-size:34px;font-weight:800;letter-spacing:-.03em}
 .chart svg{width:100%;height:auto;display:block}
+.pron{background:var(--water-soft);border-radius:12px;padding:12px;display:grid;gap:10px}
+.pron h4{margin:0;font-size:14px;color:var(--water-text);font-weight:700}
+.pron-g{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px}
+.pron-g div{background:var(--surface);border-radius:10px;padding:8px 10px;display:grid;gap:1px;min-width:0}
+.pron-g small{font-size:11.5px;color:var(--ink-3);font-weight:600}
+.pron-g .num{font-size:19px;font-weight:800}
+.pron table.pr{background:var(--surface);border-radius:10px;overflow:hidden}
 table.pr{width:100%;border-collapse:collapse;font-size:13.5px}
 table.pr td,table.pr th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left}
 table.pr th{font-size:12px;color:var(--ink-3);font-weight:600}
@@ -211,21 +215,19 @@ table.pr th{font-size:12px;color:var(--ink-3);font-weight:600}
   .asa{display:flex;justify-content:center;align-items:center;height:22px;flex:none;touch-action:none;cursor:grab}
   .asa span{width:40px;height:5px;border-radius:3px;background:var(--line-2)}
   .cab{padding:0 max(16px,env(safe-area-inset-left,0px)) 10px max(16px,env(safe-area-inset-right,0px));gap:8px;touch-action:none}
-  .marca,.sub{display:none}
+  .marca,.sub,#t-act{display:none}
+  h1{font-size:19px}
   h1{font-size:21px}
   .panel[data-alto="peek"] .cab .buscar,.panel[data-alto="peek"] .cab .seg,.panel[data-alto="peek"] #t-act{display:none}
-  .secs{overflow:auto;overscroll-behavior:contain}
-  .sec,.sec[data-abierta="true"]{flex:none}
-  .cuerpo{overflow:visible}
   .tl-top{font-size:12px}.tl-top b{font-size:13px}
   .fila,.grupo,.loc{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
   .tiempo{left:8px;right:8px;bottom:calc(var(--hoja) + 8px);padding:6px 10px;column-gap:8px;transition:bottom 220ms var(--ease)}
   .tiempo.arrastre{transition:none}
   .tl-ctl .hoy-btn{display:none}
   .hist{height:38px}
-  .ley{display:none;left:auto;right:12px;top:64px;bottom:auto}
-  .ley.abierta{display:block}
-  .btn-ref{display:inline-flex}
+  .modos button{min-height:46px;padding:6px 8px}.modos button small{display:none}
+  .panel[data-alto="peek"] .titulo .sub{display:none}
+  .ley{max-height:calc(100% - var(--hoja) - 140px)}
   .placa{top:max(64px,env(safe-area-inset-top,0px));font-size:15px}
   .maplibregl-ctrl-bottom-right{display:none}
   .toast{bottom:calc(var(--hoja) + 90px)}
@@ -246,13 +248,23 @@ table.pr th{font-size:12px;color:var(--ink-3);font-weight:600}
         Monitor de Ríos
         <a href="como-se-calcula/">Cómo se calcula</a>
       </div>
-      <h1>¿Llega el agua?</h1>
-      <p class="sub">Crecida de los ríos Paraná, Paraguay y Uruguay: barrios populares que podrían tener agua, día por día.</p>
+      <div class="modos" role="tablist" aria-label="Qué querés ver">
+        <button role="tab" type="button" id="m-barrios" aria-selected="true" aria-controls="v-barrios">
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v6h13v-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M2 20c2.5 0 2.5-1.6 5-1.6s2.5 1.6 5 1.6 2.5-1.6 5-1.6 2.5 1.6 5 1.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span><b>¿Llega el agua?</b><small>Barrios en riesgo</small></span></button>
+        <button role="tab" type="button" id="m-puertos" aria-selected="false" aria-controls="v-puertos">
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="10" y="2.5" width="4" height="15" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 6h2M14 9.5h2M14 13h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M2 20c2.5 0 2.5-1.6 5-1.6s2.5 1.6 5 1.6 2.5-1.6 5-1.6 2.5 1.6 5 1.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span><b>Puertos</b><small>Altura y pronóstico</small></span></button>
+      </div>
+      <div class="titulo">
+        <h1 id="titulo">¿Llega el agua?</h1>
+        <p class="sub" id="subt">Barrios populares junto al Paraná, el Paraguay y el Uruguay que podrían tener agua, día por día.</p>
+      </div>
       <div class="dia"><b id="t-fecha">{{FECHA}}</b><span class="tag" id="t-tipo">medido</span><span id="t-act"></span></div>
       <div class="viejo" id="viejo" hidden role="status"></div>
-      <div class="buscar" role="combobox" aria-expanded="false" aria-owns="res" aria-haspopup="listbox" id="buscar">
+      <div class="buscar" id="buscar">
         <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m16 16 5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-        <input id="q" type="search" placeholder="Buscá tu barrio, localidad o puerto" autocomplete="off" aria-label="Buscar barrio, localidad o puerto" aria-controls="res" aria-autocomplete="list">
+        <input id="q" type="search" placeholder="Buscá tu barrio, localidad o puerto" autocomplete="off" aria-label="Buscar" aria-controls="res" aria-autocomplete="list">
         <div class="res" id="res" role="listbox" hidden></div>
       </div>
       <div class="seg" role="group" aria-label="Río">
@@ -262,57 +274,36 @@ table.pr th{font-size:12px;color:var(--ink-3);font-weight:600}
         <button type="button" data-rio="paraguay" aria-pressed="false">Paraguay</button>
       </div>
     </div>
-    <div class="secs">
-      <section class="sec" id="sec-barrios" data-abierta="true">
-        <h2><button type="button" id="h-barrios" aria-expanded="true" aria-controls="c-barrios">
-          <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span class="st">¿Llega el agua?</span><span class="ss" id="ss-barrios">{{SUB1}}</span></button></h2>
-        <div class="cuerpo" id="c-barrios">
-          <p class="resumen" id="t-resumen" aria-live="polite">{{RESUMEN}}</p>
-          <div class="acc"><button class="chip" type="button" id="b-ubic"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Usar mi ubicación</button></div>
-          <div id="lista">{{LISTA}}</div>
+    <div class="vistas">
+      <section class="vista" id="v-barrios" role="tabpanel" aria-labelledby="m-barrios">
+        <p class="resumen" id="t-resumen" aria-live="polite">{{RESUMEN}}</p>
+        <div class="acc">
+          <button class="chip" type="button" id="b-ubic"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Usar mi ubicación</button>
+          <button class="chip" type="button" id="b-fam" aria-pressed="false">Contar familias</button>
         </div>
+        <div id="lista">{{LISTA}}</div>
       </section>
-      <section class="sec" id="sec-puertos" data-abierta="false">
-        <h2><button type="button" id="h-puertos" aria-expanded="false" aria-controls="c-puertos">
-          <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span class="st">Puertos</span><span class="ss" id="ss-puertos">{{SUB2}}</span></button></h2>
-        <div class="cuerpo" id="c-puertos">
-          <div class="acc" style="padding-top:8px"><button class="chip" type="button" id="b-solo" aria-pressed="false">Solo en alerta o evacuación</button></div>
-          <div id="lista-p">{{PUERTOS}}</div>
-          <p class="vacio">La altura se lee contra la alerta y la evacuación de cada puerto: cada escala tiene su propio cero.</p>
+      <section class="vista" id="v-puertos" role="tabpanel" aria-labelledby="m-puertos" hidden>
+        <p class="resumen" id="t-resumen-p">{{SUB2}}</p>
+        <div class="acc">
+          <button class="chip" type="button" id="b-solo" aria-pressed="false">Solo en alerta o evacuación</button>
+          <button class="chip" type="button" id="b-suben" aria-pressed="false">Solo los que suben</button>
         </div>
+        <div id="lista-p">{{PUERTOS}}</div>
+        <p class="vacio">Cada escala tiene su propio cero: la altura se lee contra la alerta y la evacuación de ese puerto, no se compara con otros.</p>
       </section>
     </div>
     <div class="pie">Estimación propia, no es un aviso oficial. Ante una emergencia, Defensa Civil: <a href="tel:103">103</a>.</div>
   </aside>
 
   <div class="mapbtns">
-    <button class="btn btn-ref" type="button" id="b-ref" aria-expanded="false" aria-controls="ley">Referencias</button>
+    <button class="btn" type="button" id="b-ref" aria-expanded="false" aria-controls="ley"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Referencias</button>
     <div class="sw" role="group" aria-label="Fondo del mapa">
       <button type="button" id="b-mapa" aria-pressed="true">Mapa</button>
       <button type="button" id="b-sat" aria-pressed="false">Satélite</button>
     </div>
   </div>
-
-  <details class="ley" id="ley" open>
-    <summary>Referencias</summary>
-    <div class="c">
-      <h5>Barrios, el día elegido</h5>
-      <div class="r"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="var(--st-evac)" stroke="var(--ink)" stroke-width="1.5"/></svg>Agua probable en la parte baja</div>
-      <div class="r"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5" fill="var(--surface)" stroke="var(--st-alerta)" stroke-width="2.6"/></svg>Cerca: al río le falta menos de 1 m</div>
-      <div class="r"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3" fill="var(--st-lejos)" opacity=".7"/></svg>Lejos del agua</div>
-      <div class="r"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3.5" fill="none" stroke="var(--st-sindato)" stroke-width="1.2"/></svg>No lo estimamos</div>
-      <div class="r"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="var(--st-evac)" stroke="#fff" stroke-width="1.5"/><text x="8" y="11" text-anchor="middle" font-size="8" font-weight="700" fill="#fff">4</text></svg>Localidad: barrios en riesgo</div>
-      <h5>Escalas de Prefectura</h5>
-      <div class="r"><svg width="16" height="16" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="var(--st-normal)"/></svg>Normal
-        <svg width="16" height="16" viewBox="0 0 14 14" style="margin-left:6px"><polygon points="7,1.5 13,12.5 1,12.5" fill="var(--st-atencion)" stroke="#1D2933" stroke-width=".8"/></svg>Cerca de la alerta</div>
-      <div class="r"><svg width="16" height="16" viewBox="0 0 14 14"><polygon points="7,1 13,7 7,13 1,7" fill="var(--st-alerta)"/></svg>Alerta
-        <svg width="16" height="16" viewBox="0 0 14 14" style="margin-left:6px"><polygon points="4.2,1 9.8,1 13,4.2 13,9.8 9.8,13 4.2,13 1,9.8 1,4.2" fill="var(--st-evac)"/></svg>Evacuación</div>
-      <div class="r"><svg width="16" height="16" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--st-normal)" stroke-width="2.2"/></svg>Hueco: pronóstico o estimado</div>
-      <div class="r"><svg width="22" height="10" viewBox="0 0 22 10"><path d="M1 5h20" stroke="var(--st-evac)" stroke-width="4" stroke-linecap="round"/></svg>Río: color de la escala más cercana</div>
-    </div>
-  </details>
+  <div class="ley" id="ley" hidden role="dialog" aria-label="Referencias del mapa"></div>
 
   <div class="tiempo" id="tiempo">
     <div class="tl-ctl">
@@ -321,7 +312,7 @@ table.pr th{font-size:12px;color:var(--ink-3);font-weight:600}
       <button class="flecha" id="sig" type="button" aria-label="Día siguiente"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button class="hoy-btn" id="b-hoy" type="button">Hoy</button>
     </div>
-    <div class="tl-top"><b id="tl-fecha"></b><span id="tl-txt">Familias en barrios con agua probable y cerca, por día</span></div>
+    <div class="tl-top"><b id="tl-fecha"></b><span id="tl-txt"></span></div>
     <div class="hist" id="hist" role="slider" tabindex="0" aria-label="Día elegido" aria-valuemin="0"></div>
   </div>
 
@@ -360,13 +351,14 @@ catch (e) {
   $("#t-resumen").innerHTML = `No pudimos cargar los datos. Revisá tu conexión. <button class="btn" type="button" onclick="location.reload()">Reintentar</button>`;
   return;
 }
+N.puertos = N.puertos.filter((p) => p.activo !== false && p.H.some((v) => v != null));
 const B = Bd.barrios, P = Object.fromEntries(N.puertos.map((p) => [p.id, p]));
 const T = N.dias.length, HOY = Math.max(0, N.dias.indexOf(N.hoy));
 
 // estado de cada escala (el rojo, sólo con dato medido)
 function estP(p, t) {
   const h = p.H[t]; if (h == null) return "sin_dato";
-  const med = p.src[t] === "m";
+  const med = p.src[t] === "m" || p.src[t] === "u";
   if (p.ev != null && h >= p.ev) return med ? "evacuacion" : "alerta";
   if (p.al != null && h >= p.al) return "alerta";
   if (p.al != null && h >= p.al - 0.3) return "atencion";
@@ -374,6 +366,19 @@ function estP(p, t) {
 }
 const EST_TXT = { normal: "Normal", atencion: "Cerca de la alerta", alerta: "Alerta", evacuacion: "Evacuación", sin_umbral: "Sin umbral oficial", sin_dato: "Sin dato" };
 const EST_PILL = { normal: "pn", atencion: "pa", alerta: "p1", evacuacion: "p2", sin_umbral: "px", sin_dato: "px" };
+const FUENTE_P = { m: "lectura de Prefectura", u: "última lectura de Prefectura", i: "pronóstico del INA", g: "modelo GloFAS",
+  v: "variación de la escala vecina", p: "sin pronóstico: se repite la última lectura" };
+const esMedido = (p, t) => p.src[t] === "m" || p.src[t] === "u";
+function ultLectura(p, t) { for (let k = t; k >= 0; k--) if (p.src[k] === "m") return k; return null; }
+// resumen del pronóstico de los próximos 7 días desde el día t
+function pron7(p, t) {
+  const ks = []; for (let k = t + 1; k <= Math.min(T - 1, t + 7); k++) if (p.H[k] != null) ks.push(k);
+  if (!ks.length || p.H[t] == null) return null;
+  const kmx = ks.reduce((a, k) => p.H[k] > p.H[a] ? k : a, ks[0]), kmn = ks.reduce((a, k) => p.H[k] < p.H[a] ? k : a, ks[0]), kf = ks[ks.length - 1];
+  const fuentes = new Set(ks.map((k) => p.src[k]));
+  return { kmx, kmn, kf, max: p.H[kmx], min: p.H[kmn], fin: p.H[kf], lo: p.L ? p.L[kf] : null, hi: p.U ? p.U[kf] : null, d: p.H[kf] - p.H[t],
+    fuente: fuentes.has("i") ? "i" : fuentes.has("g") ? "g" : fuentes.has("v") ? "v" : "p" };
+}
 const sub = (p, t) => (!p || p.ancla == null || p.H[t] == null) ? null : p.H[t] - p.ancla;
 
 for (const b of B) {
@@ -413,9 +418,8 @@ for (const l of Object.values(LOC)) {
 }
 
 // ---------------------------------------------------------------- estado de la página
-const S = { t: HOY, rio: "todos", sec: "barrios", sel: null, play: null, sat: false, solo: false, abiertos: new Set(), alto: "mid" };
+const S = { t: HOY, rio: "todos", modo: "barrios", fam: false, suben: false, sel: null, play: null, sat: false, solo: false, abiertos: new Set(), alto: "mid" };
 const enRio = (x) => S.rio === "todos" || x.rio === S.rio;
-try { if (localStorage.getItem("ley") === "0") $("#ley").open = false; } catch (e) { /* sin almacenamiento */ }
 
 // ---------------------------------------------------------------- textos de barrios
 const NOMBRE_S = { 2: "Agua probable", 1: "Cerca del agua", 0: "Lejos del agua", "-1": "No lo estimamos" };
@@ -528,7 +532,7 @@ function iconos() {
 }
 
 const fcPuertos = () => ({ type: "FeatureCollection", features: N.puertos.filter((p) => p.H.some((v) => v != null) && enRio(p)).map((p) => {
-  const t = S.t, e = estP(p, t), hueco = p.src[t] !== "m";
+  const t = S.t, e = estP(p, t), hueco = !esMedido(p, t);
   const v = p.H[t];
   return { type: "Feature", id: p.id, properties: { id: p.id, ic: `p-${e}-${hueco ? "h" : "f"}`,
     lab: p.nom + (v == null ? "" : " " + (hueco ? "~" : "") + fmt(v)), sk: { evacuacion: 1, alerta: 2, atencion: 3 }[e] || 5,
@@ -642,18 +646,45 @@ function encuadreInicial() {
   if (map.getZoom() < 5.6) map.setZoom(5.6);
 }
 
-// ---------------------------------------------------------------- panel: secciones
-function abrirSec(cual) {
-  S.sec = cual;
-  for (const s of ["barrios", "puertos"]) {
-    const ab = s === cual;
-    $("#sec-" + s).dataset.abierta = String(ab);
-    $("#h-" + s).setAttribute("aria-expanded", String(ab));
-  }
+// ---------------------------------------------------------------- dos funciones: barrios y puertos
+const TXT_MODO = {
+  barrios: { h1: "¿Llega el agua?", sub: "Barrios populares junto al Paraná, el Paraguay y el Uruguay que podrían tener agua, día por día.", q: "Buscá tu barrio, localidad o puerto" },
+  puertos: { h1: "Altura de los ríos", sub: "Escalas de Prefectura del Paraná, el Paraguay y el Uruguay, con lo que marcan hoy y su pronóstico.", q: "Buscá un puerto (por ejemplo, Corrientes)" },
+};
+function setModo(m, quieto) {
+  if (S.modo === m && quieto) return;
+  S.modo = m;
+  for (const x of ["barrios", "puertos"]) { $("#m-" + x).setAttribute("aria-selected", String(x === m)); $("#v-" + x).hidden = x !== m; }
+  $("#titulo").textContent = TXT_MODO[m].h1; $("#subt").textContent = TXT_MODO[m].sub; $("#q").placeholder = TXT_MODO[m].q;
+  $("#q").value = ""; $("#res").hidden = true;
   if (MOVIL.matches && S.alto === "peek") setAlto("mid");
+  modoMapa(); leyenda(); listaPuertos(); hist();
 }
-$("#h-barrios").onclick = () => abrirSec(S.sec === "barrios" ? "puertos" : "barrios");
-$("#h-puertos").onclick = () => abrirSec(S.sec === "puertos" ? "barrios" : "puertos");
+$("#m-barrios").onclick = () => { if (S.sel) cerrarFicha(); setModo("barrios"); };
+$("#m-puertos").onclick = () => { if (S.sel) cerrarFicha(); setModo("puertos"); };
+$(".modos").addEventListener("keydown", (e) => { if (e.key === "ArrowRight" || e.key === "ArrowLeft") { const m = S.modo === "barrios" ? "puertos" : "barrios"; setModo(m); $("#m-" + m).focus(); } });
+function modoMapa() {
+  if (!map.getLayer("m-b")) return;
+  const vb = S.modo === "barrios" ? "visible" : "none";
+  for (const id of ["m-b", "m-loc", "m-loc-n", "m-cont-f", "m-cont-l", "m-b-lab"]) map.setLayoutProperty(id, "visibility", vb);
+  map.setLayerZoomRange("m-p-lab0", S.modo === "puertos" ? 5 : 7, 24);
+  map.setLayoutProperty("m-p", "icon-size", ["*", S.modo === "puertos" ? 1.25 : 1, ["case", ["==", ["get", "sel"], 1], 1.45, ["==", ["get", "big"], 1], 1.2, 1]]);
+}
+function leyenda() {
+  const b = `<h5>Barrios, el día elegido</h5>
+    <div class="r">${icoB(2, 16)}Agua probable en la parte baja</div><div class="r">${icoB(1, 16)}Cerca: al río le falta menos de 1 m</div>
+    <div class="r">${icoB(0, 16)}Lejos del agua</div><div class="r">${icoB(-1, 16)}No lo estimamos</div>
+    <div class="r"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="var(--st-evac)" stroke="#fff" stroke-width="1.5"/><text x="8" y="11" text-anchor="middle" font-size="8" font-weight="700" fill="#fff">4</text></svg>Localidad: cantidad de barrios en riesgo</div>`;
+  const p = `<h5>Escalas de Prefectura</h5>
+    <div class="r">${icoP("normal", false, 16)}Normal</div><div class="r">${icoP("atencion", false, 16)}A menos de 30 cm de la alerta</div>
+    <div class="r">${icoP("alerta", false, 16)}Alerta</div><div class="r">${icoP("evacuacion", false, 16)}Evacuación (solo con lectura)</div>
+    <div class="r">${icoP("normal", true, 16)}Hueco: pronóstico o estimación</div>
+    <div class="r"><svg width="22" height="10" viewBox="0 0 22 10"><path d="M1 5h20" stroke="var(--st-evac)" stroke-width="4" stroke-linecap="round"/></svg>Río: color de la escala más cercana</div>
+    <p style="margin:2px 0 0;font-size:12px">Los números son metros en la escala de cada puerto, no profundidad.</p>`;
+  $("#ley").innerHTML = S.modo === "barrios" ? b + p : p;
+}
+$("#b-ref").onclick = () => { const l = $("#ley"); l.hidden = !l.hidden; $("#b-ref").setAttribute("aria-expanded", String(!l.hidden)); };
+document.addEventListener("click", (e) => { if (!e.target.closest("#ley,#b-ref") && !$("#ley").hidden) { $("#ley").hidden = true; $("#b-ref").setAttribute("aria-expanded", "false"); } });
 
 // ---------------------------------------------------------------- pintar un día
 function pintarDia() {
@@ -667,12 +698,13 @@ function pintarDia() {
   const sel = B.filter(enRio);
   const r2 = sel.filter((b) => b.S[t] === 2), r1 = sel.filter((b) => b.S[t] === 1);
   const fam = (l) => ent(l.reduce((s, b) => s + (b.fam || 0), 0));
+  const ff = (l) => S.fam ? ` · ${fam(l)} familias` : "";
   $("#t-resumen").innerHTML = r2.length || r1.length
-    ? `<span class="lin"><b class="t-evac">${r2.length} ${r2.length === 1 ? "barrio" : "barrios"}</b> con agua probable · ${fam(r2)} familias</span><span class="lin"><b class="t-alerta">${r1.length} ${r1.length === 1 ? "barrio" : "barrios"}</b> cerca del agua · ${fam(r1)} familias</span>`
+    ? `<span class="lin"><b class="t-evac">${r2.length} ${r2.length === 1 ? "barrio" : "barrios"}</b> con agua probable${ff(r2)}</span><span class="lin"><b class="t-alerta">${r1.length} ${r1.length === 1 ? "barrio" : "barrios"}</b> cerca del agua${ff(r1)}</span>`
     : `<span class="lin">Según la estimación, ningún barrio tendría agua ${t === HOY ? "hoy" : "ese día"}.</span>`;
-  $("#ss-barrios").textContent = `${r2.length} con agua probable · ${r1.length} cerca`;
-  const ps = N.puertos.filter(enRio).map((p) => estP(p, t));
-  $("#ss-puertos").textContent = `${ps.filter((e) => e === "evacuacion").length} en evacuación · ${ps.filter((e) => e === "alerta").length} en alerta · ${ps.filter((e) => e !== "sin_dato").length} con dato`;
+  const pe = N.puertos.filter(enRio), ps = pe.map((p) => estP(p, t));
+  const suben = pe.filter((p) => { const x = pron7(p, t); return x && x.d >= .05; }).length;
+  $("#t-resumen-p").innerHTML = `<span class="lin"><b class="t-evac">${ps.filter((e) => e === "evacuacion").length} en evacuación</b> · <b class="t-alerta">${ps.filter((e) => e === "alerta").length} en alerta</b> · ${pe.length} escalas</span><span class="lin">${suben} ${suben === 1 ? "sube" : "suben"} en los próximos 7 días según el pronóstico</span>`;
   lista(); listaPuertos(); hist();
   if (S.sel) S.sel.tipo === "b" ? fichaBarrio(S.sel.id) : fichaPuerto(S.sel.id);
   if (S.play) { const pl = $("#placa"); pl.hidden = false; pl.textContent = fechaLarga(N.dias[t]) + (fut ? " · pronóstico" : t === HOY ? " · hoy" : " · medido"); }
@@ -681,7 +713,7 @@ function pintarDia() {
 // ---------------------------------------------------------------- lista de barrios (por localidad)
 function filaB(b, t) {
   return `<button class="fila" type="button" data-b="${b.id}" ${S.sel?.tipo === "b" && S.sel.id === b.id ? 'aria-current="true"' : ""}>
-    ${icoB(b.S[t])}<span class="t"><b>${esc(b.n)}</b><span>${esc(b.loc)} · ${b.fam ? ent(b.fam) + " familias" : "familias sin dato"}</span></span>
+    ${icoB(b.S[t])}<span class="t"><b>${esc(b.n)}</b><span>${esc(b.loc)}${S.fam ? " · " + (b.fam ? ent(b.fam) + " familias" : "familias sin dato") : ""}</span></span>
     <span class="m">${margenTxt(b, t)}<small>${NOMBRE_S[b.S[t]]}</small></span></button>`;
 }
 function lista() {
@@ -736,32 +768,48 @@ function sparkline(p, t) {
   for (let k = a; k <= z; k++) { const x = p.H[k]; if (x == null) continue; const s = `${X(k).toFixed(1)} ${Y(x).toFixed(1)}`; if (k <= t) d1 += (d1 ? "L" : "M") + s; if (k >= t) d2 += (d2 ? "L" : "M") + s; }
   return `<svg class="sp" width="64" height="20" viewBox="0 0 64 20" aria-hidden="true"><path d="${d1}" fill="none" stroke="var(--water)" stroke-width="1.8"/><path d="${d2}" fill="none" stroke="var(--water)" stroke-width="1.5" stroke-dasharray="2.5 2"/></svg>`;
 }
+function filaPuerto(p, t) {
+  const e = estP(p, t), v = p.H[t], hueco = !esMedido(p, t);
+  const d = t > 0 && v != null && p.H[t - 1] != null ? v - p.H[t - 1] : null;
+  const flecha = d == null ? "" : Math.abs(d) < .03 ? "= estable" : (d > 0 ? "▲ +" : "▼ ") + fmt(d) + " en 24 h";
+  const x = pron7(p, t);
+  let pr = "";
+  if (x) {
+    const e2 = estP(p, x.kmx), cls = e2 === "evacuacion" || e2 === "alerta" ? "t-alerta" : "";
+    pr = x.fuente === "p" ? `<span class="prono" style="color:var(--ink-3)">Sin pronóstico para esta escala</span>`
+      : Math.abs(x.d) < .05 && x.max - v < .05 ? `<span class="prono">Pronóstico 7 días: casi sin cambios (~${fmt(x.fin)} m)</span>`
+      : x.max - v >= .05 ? `<span class="prono ${cls}">Pronóstico: sube hasta ~${fmt(x.max)} m el ${fecha(N.dias[x.kmx], true)}</span>`
+      : `<span class="prono">Pronóstico: baja a ~${fmt(x.min)} m el ${fecha(N.dias[x.kmn], true)}</span>`;
+  }
+  return `<button class="fila" type="button" data-p="${p.id}" ${S.sel?.tipo === "p" && S.sel.id === p.id ? 'aria-current="true"' : ""}>${icoP(e, hueco)}
+    <span class="t"><b>${esc(p.nom)}</b><span>${EST_TXT[e]}${p.src[t] === "u" ? " · lectura del " + fecha(N.dias[ultLectura(p, t)]) : hueco ? " · " + FUENTE_P[p.src[t]] : ""}</span>${pr}</span>
+    <span class="m"><span class="num">${(hueco ? "~" : "") + fmt(v) + " m"}</span><small>${flecha}</small>${sparkline(p, t)}</span></button>`;
+}
 function listaPuertos() {
-  const t = S.t, out = [];
+  const t = S.t, out = [], q = S.modo === "puertos" ? norm($("#q").value.trim()) : "";
   for (const r of Object.keys(RIO)) {
     if (S.rio !== "todos" && S.rio !== r) continue;
-    const ps = N.puertos.filter((p) => p.rio === r && p.H.some((x) => x != null)).filter((p) => !S.solo || ["alerta", "evacuacion"].includes(estP(p, t)));
+    const ps = N.puertos.filter((p) => p.rio === r && p.H[t] != null)
+      .filter((p) => !S.solo || ["alerta", "evacuacion"].includes(estP(p, t)))
+      .filter((p) => { if (!S.suben) return true; const x = pron7(p, t); return x && x.max - p.H[t] >= .05; })
+      .filter((p) => !q || norm(p.nom).includes(q));
     if (!ps.length) continue;
-    out.push(`<h3 class="grupo">Río ${RIO[r]}</h3>`);
-    for (const p of ps) {
-      const e = estP(p, t), v = p.H[t], hueco = p.src[t] !== "m";
-      const d = t > 0 && v != null && p.H[t - 1] != null ? v - p.H[t - 1] : null;
-      const flecha = d == null ? "" : Math.abs(d) < .03 ? "= estable" : (d > 0 ? "▲ +" : "▼ ") + fmt(d);
-      out.push(`<button class="fila" type="button" data-p="${p.id}" ${S.sel?.tipo === "p" && S.sel.id === p.id ? 'aria-current="true"' : ""}>${icoP(e, hueco)}
-        <span class="t"><b>${esc(p.nom)}</b><span>${EST_TXT[e]}${hueco && v != null ? (p.src[t] === "g" ? " · estimado (modelo)" : " · pronóstico") : ""}</span></span>
-        <span class="m"><span class="num">${v == null ? "sin dato" : (hueco ? "~" : "") + fmt(v) + " m"}</span><small>${flecha}</small>${sparkline(p, t)}</span></button>`);
-    }
+    out.push(`<h3 class="grupo">Río ${RIO[r]} <span style="font-weight:500;color:var(--ink-3)">· de aguas arriba a aguas abajo</span></h3>`);
+    for (const p of ps) out.push(filaPuerto(p, t));
   }
-  $("#lista-p").innerHTML = out.join("") || `<p class="vacio">Ninguna escala en alerta o evacuación ese día.</p>`;
+  $("#lista-p").innerHTML = out.join("") || `<p class="vacio">${q ? `No hay un puerto con «${esc($("#q").value)}». Probá con otro nombre.` : "Ninguna escala cumple ese filtro ese día."}</p>`;
 }
 $("#lista-p").addEventListener("click", (e) => { const f = e.target.closest("[data-p]"); if (f) abrirPuerto(+f.dataset.p, true); });
+$("#b-fam").onclick = () => { S.fam = !S.fam; $("#b-fam").setAttribute("aria-pressed", String(S.fam)); pintarDia(); };
+$("#b-suben").onclick = () => { S.suben = !S.suben; $("#b-suben").setAttribute("aria-pressed", String(S.suben)); listaPuertos(); };
 $("#b-solo").onclick = () => { S.solo = !S.solo; $("#b-solo").setAttribute("aria-pressed", String(S.solo)); listaPuertos(); };
 
 // ---------------------------------------------------------------- histograma y días
 function hist() {
   const el = $("#hist"), W = el.clientWidth || 600, H = el.clientHeight || 46, base = H - 14, top = 2;
-  const sel = B.filter(enRio), rf = new Array(T).fill(0), of = new Array(T).fill(0);
-  for (const b of sel) for (let t = 0; t < T; t++) { if (b.S[t] === 2) rf[t] += b.fam || 0; else if (b.S[t] === 1) of[t] += b.fam || 0; }
+  const rf = new Array(T).fill(0), of = new Array(T).fill(0);
+  if (S.modo === "puertos") for (const p of N.puertos.filter(enRio)) for (let t = 0; t < T; t++) { const e = estP(p, t); if (e === "evacuacion") rf[t]++; else if (e === "alerta") of[t]++; }
+  else for (const b of B.filter(enRio)) for (let t = 0; t < T; t++) { const w = S.fam ? (b.fam || 0) : 1; if (b.S[t] === 2) rf[t] += w; else if (b.S[t] === 1) of[t] += w; }
   const max = Math.max(1, ...rf.map((v, i) => v + of[i])), bw = W / T, x = (t) => t * bw;
   let s = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><rect x="${x(HOY + 1)}" y="0" width="${W - x(HOY + 1)}" height="${base}" fill="var(--water-soft)" opacity=".6" rx="3"/>`;
   for (let t = 0; t < T; t++) {
@@ -779,9 +827,11 @@ function hist() {
   el.innerHTML = s;
   const t = S.t, fut = t > HOY;
   $("#tl-fecha").textContent = (t === HOY ? "Hoy, " : "") + fecha(N.dias[t], true) + (fut ? " · pronóstico" : t < HOY ? " · medido" : "");
-  $("#tl-txt").textContent = rf[t] + of[t] ? `${ent(rf[t])} familias con agua probable y ${ent(of[t])} cerca` : "Sin familias en barrios con agua ese día";
+  $("#tl-txt").textContent = S.modo === "puertos" ? `${rf[t]} escalas en evacuación y ${of[t]} en alerta`
+    : S.fam ? (rf[t] + of[t] ? `${ent(rf[t])} familias con agua probable y ${ent(of[t])} cerca` : "Ninguna familia en barrios con agua ese día")
+    : (rf[t] + of[t] ? `${rf[t]} barrios con agua probable y ${of[t]} cerca` : "Ningún barrio con agua ese día");
   el.setAttribute("aria-valuemax", T - 1); el.setAttribute("aria-valuenow", t);
-  el.setAttribute("aria-valuetext", `${fechaLarga(N.dias[t])}${t === HOY ? ", hoy" : ""}: ${B.filter((b) => enRio(b) && b.S[t] === 2).length} barrios con agua probable, ${ent(rf[t])} familias`);
+  el.setAttribute("aria-valuetext", `${fechaLarga(N.dias[t])}${t === HOY ? ", hoy" : ""}: ${$("#tl-txt").textContent}`);
 }
 function irA(t) { t = Math.max(0, Math.min(T - 1, t)); if (t !== S.t) { S.t = t; pintarDia(); } }
 (function () {
@@ -828,6 +878,7 @@ const IDX = [
 ];
 let resSel = -1, resItems = [];
 function buscar() {
+  if (S.modo === "puertos") { $("#res").hidden = true; return listaPuertos(); }
   const q = norm($("#q").value.trim()), box = $("#res");
   if (q.length < 2) { box.hidden = true; $("#buscar").setAttribute("aria-expanded", "false"); return; }
   const pal = q.split(/\s+/);
@@ -847,7 +898,7 @@ function elegir(i) {
   $("#res").hidden = true; $("#q").blur();
   if (x.tipo === "b") abrirBarrio(x.id, true);
   else if (x.tipo === "p") abrirPuerto(x.id, true);
-  else { abrirSec("barrios"); S.abiertos = new Set([x.id]); lista(); encuadrar(LOC[x.id].bs); cerrarFicha(); }
+  else { setModo("barrios", true); S.abiertos = new Set([x.id]); lista(); encuadrar(LOC[x.id].bs); cerrarFicha(); }
 }
 $("#q").addEventListener("input", buscar);
 $("#q").addEventListener("keydown", (e) => {
@@ -868,7 +919,7 @@ $("#b-ubic").onclick = () => {
     const d = (c) => Math.hypot((c[0] - o[0]) * Math.cos(o[1] * Math.PI / 180), c[1] - o[1]) * 111;
     const cerca = [...B].sort((a, b) => d(a.c) - d(b.c)).slice(0, 5);
     if (d(cerca[0].c) > 60) return toast("No hay barrios estimados a menos de 60 km de tu ubicación.");
-    S.cerca = cerca; abrirSec("barrios"); lista(); encuadrar(cerca);
+    S.cerca = cerca; setModo("barrios", true); lista(); encuadrar(cerca);
   }, () => toast("No pudimos usar tu ubicación. Podés buscar tu barrio por nombre."), { timeout: 10000, maximumAge: 600000 });
 };
 function toast(m) { const t = $("#toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.k); toast.k = setTimeout(() => t.hidden = true, 2600); }
@@ -880,14 +931,14 @@ function marcarSel(sel) {
 }
 function abrirBarrio(id, volar) {
   const b = BID[id]; if (!b) return;
-  parar(); abrirSec("barrios"); marcarSel({ tipo: "b", id });
+  parar(); setModo("barrios", true); marcarSel({ tipo: "b", id });
   fichaBarrio(id); lista();
   if (volar) map.flyTo({ center: b.c, zoom: Math.max(map.getZoom(), 14), padding: pad(), duration: QUIETO.matches ? 0 : 1400 });
   if (map.getZoom() >= 10 || volar) cargarContornos();
 }
 function abrirPuerto(id, volar) {
   const p = P[id]; if (!p) return;
-  parar(); abrirSec("puertos"); marcarSel({ tipo: "p", id });
+  parar(); setModo("puertos", true); marcarSel({ tipo: "p", id });
   fichaPuerto(id); listaPuertos();
   if (volar) map.flyTo({ center: p.c, zoom: Math.max(map.getZoom(), 9.5), padding: pad(), duration: QUIETO.matches ? 0 : 1200 });
 }
@@ -999,51 +1050,78 @@ function copiar(btn, url) {
 }
 
 function chartP(p, t) {
-  const W = 360, Hh = 150, l = 30, r = 8, tp = 8, bt = 20;
-  const vals = p.H.filter((x) => x != null).concat([p.al, p.ev].filter((x) => x != null));
-  if (!vals.length) return `<p class="nota">Sin lecturas.</p>`;
+  const W = 360, Hh = 170, l = 30, r = 8, tp = 10, bt = 20;
+  const vals = p.H.filter((x) => x != null).concat((p.L || []).filter((x) => x != null), (p.U || []).filter((x) => x != null), [p.al, p.ev].filter((x) => x != null));
   const lo = Math.floor(Math.min(...vals) - .3), hi = Math.ceil(Math.max(...vals) + .3);
   const x = (k) => l + k / (T - 1) * (W - l - r), y = (v) => tp + (hi - v) / (hi - lo) * (Hh - tp - bt);
   const seg = (fn) => { let d = "", on = false; p.H.forEach((v, k) => { if (v == null || !fn(k)) { on = false; return; } d += (on ? "L" : "M") + x(k).toFixed(1) + " " + y(v).toFixed(1); on = true; }); return d; };
-  let s = `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Altura de ${esc(p.nom)}: últimos 30 días y pronóstico">`;
+  let s = `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Altura de ${esc(p.nom)}: últimos 30 días, pronóstico y su rango">`;
   const paso = hi - lo > 8 ? 2 : 1;
   for (let v = lo; v <= hi; v += paso) s += `<line x1="${l}" x2="${W - r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${l - 5}" y="${y(v) + 3.5}" text-anchor="end" font-size="10" fill="var(--ink-3)">${v}</text>`;
   s += `<rect x="${x(HOY)}" y="${tp}" width="${W - r - x(HOY)}" height="${Hh - tp - bt}" fill="var(--water-soft)" opacity=".55"/><text x="${x(HOY) + 4}" y="${tp + 11}" font-size="10" fill="var(--ink-2)">pronóstico</text>`;
-  if (p.al != null) s += `<line x1="${l}" x2="${W - r}" y1="${y(p.al)}" y2="${y(p.al)}" stroke="var(--st-alerta)" stroke-dasharray="4 3"/>`;
-  if (p.ev != null) s += `<line x1="${l}" x2="${W - r}" y1="${y(p.ev)}" y2="${y(p.ev)}" stroke="var(--st-evac)" stroke-dasharray="4 3"/>`;
+  // banda del pronóstico (mínimo y máximo esperados)
+  if (p.L && p.U) {
+    const ks = []; for (let k = HOY; k < T; k++) if (p.L[k] != null && p.U[k] != null) ks.push(k);
+    if (ks.length > 1) s += `<path d="M${ks.map((k) => x(k).toFixed(1) + " " + y(p.U[k]).toFixed(1)).join("L")}L${ks.slice().reverse().map((k) => x(k).toFixed(1) + " " + y(p.L[k]).toFixed(1)).join("L")}Z" fill="var(--water)" opacity=".18"/>`;
+  }
+  if (p.al != null) s += `<line x1="${l}" x2="${W - r}" y1="${y(p.al)}" y2="${y(p.al)}" stroke="var(--st-alerta)" stroke-dasharray="4 3"/><text x="${W - r}" y="${y(p.al) - 3}" text-anchor="end" font-size="9.5" fill="var(--t-alerta)">alerta</text>`;
+  if (p.ev != null) s += `<line x1="${l}" x2="${W - r}" y1="${y(p.ev)}" y2="${y(p.ev)}" stroke="var(--st-evac)" stroke-dasharray="4 3"/><text x="${W - r}" y="${y(p.ev) - 3}" text-anchor="end" font-size="9.5" fill="var(--t-evac)">evacuación</text>`;
   s += `<path d="${seg((k) => k <= HOY)}" fill="none" stroke="var(--water)" stroke-width="2.4" stroke-linejoin="round"/><path d="${seg((k) => k >= HOY)}" fill="none" stroke="var(--water)" stroke-width="2" stroke-dasharray="5 4"/>`;
   if (p.H[t] != null) s += `<circle cx="${x(t)}" cy="${y(p.H[t])}" r="4.5" fill="var(--water)" stroke="var(--surface)" stroke-width="2"/>`;
   s += `<text x="${x(0)}" y="${Hh - 5}" font-size="10" fill="var(--ink-3)">${fecha(N.dias[0])}</text><text x="${x(HOY)}" y="${Hh - 5}" font-size="10" text-anchor="middle" font-weight="700" fill="var(--ink)">hoy</text><text x="${W - r}" y="${Hh - 5}" font-size="10" text-anchor="end" fill="var(--ink-3)">${fecha(N.dias[T - 1])}</text>`;
   return s + "</svg>";
 }
 function fichaPuerto(id) {
-  const p = P[id], t = S.t, h = p.H[t], e = estP(p, t), hueco = p.src[t] !== "m";
+  const p = P[id], t = S.t, h = p.H[t], e = estP(p, t), hueco = !esMedido(p, t);
   const d1 = t > 0 && h != null && p.H[t - 1] != null ? h - p.H[t - 1] : null, d7 = t > 6 && h != null && p.H[t - 7] != null ? h - p.H[t - 7] : null;
   const cerca = B.filter((b) => b.esc && (b.esc[0] === id || b.esc[1] === id) && !b.motivo);
   const r2 = cerca.filter((b) => b.S[t] === 2), r1 = cerca.filter((b) => b.S[t] === 1);
-  const mismo = N.puertos.filter((x) => x.rio === p.rio && x.H.some((v) => v != null)), i = mismo.findIndex((x) => x.id === id);
-  const fuente = h == null ? "Sin dato ese día." : p.src[t] === "m" ? `Lectura de Prefectura Naval del ${fechaLarga(N.dias[t])}.` : p.src[t] === "i" ? "Pronóstico del INA, empalmado con la última lectura." : "Estimado con el modelo GloFAS (Copernicus). No es una lectura de Prefectura.";
-  const prox = []; for (let k = HOY + 1; k <= Math.min(T - 1, HOY + 7); k++) if (p.H[k] != null) prox.push(`<tr><td>${fecha(N.dias[k], true)}</td><td class="num">~${fmt(p.H[k])} m</td><td>${EST_TXT[estP(p, k)]}</td><td>${p.src[k] === "i" ? "INA" : "GloFAS (modelo)"}</td></tr>`);
+  const mismo = N.puertos.filter((x) => x.rio === p.rio), i = mismo.findIndex((x) => x.id === id);
+  const ul = ultLectura(p, Math.min(t, HOY));
+  const fuente = p.src[t] === "m" ? `Lectura de Prefectura Naval del ${fechaLarga(N.dias[t])}.`
+    : p.src[t] === "u" ? `Última lectura de Prefectura: ${fechaLarga(N.dias[ul])}. Ese día no hubo lectura nueva.`
+    : p.src[t] === "i" ? "Pronóstico oficial del INA, empalmado con la última lectura."
+    : p.src[t] === "g" ? "Estimado con el modelo GloFAS (Copernicus). No es una lectura de Prefectura."
+    : p.src[t] === "v" ? `Estimado con la variación pronosticada para la escala vecina${p.vecino && P[p.vecino] ? " (" + esc(P[p.vecino].nom) + ")" : ""}.`
+    : "No hay pronóstico para esta escala: se repite la última lectura.";
+  const x = pron7(p, t);
+  const FUENTE_PR = { i: "Pronóstico oficial del INA.", g: "Modelo de caudal GloFAS (Copernicus), convertido a altura. Es una estimación.",
+    v: `Variación pronosticada para la escala vecina${p.vecino && P[p.vecino] ? " (" + esc(P[p.vecino].nom) + ")" : ""}. Es una estimación.`, p: "" };
+  let pron = "";
+  if (x && x.fuente !== "p") {
+    const ef = estP(p, x.kmx);
+    const tend = Math.abs(x.d) < .05 ? "casi sin cambios" : x.d > 0 ? `sube ${fmt(x.d)} m` : `baja ${fmt(-x.d)} m`;
+    const rango = x.lo != null && x.hi != null && x.hi - x.lo >= .02 ? `<small>Rango esperado: entre ${fmt(x.lo)} y ${fmt(x.hi)} m</small>` : "";
+    const filas = []; for (let k = t + 1; k <= Math.min(T - 1, t + 7); k++) if (p.H[k] != null) filas.push(`<tr><td>${fecha(N.dias[k], true)}</td><td class="num"><b>~${fmt(p.H[k])}</b></td><td class="num">${p.L && p.L[k] != null && p.U[k] - p.L[k] >= .02 ? fmt(p.L[k]) + " a " + fmt(p.U[k]) : ""}</td><td>${icoP(estP(p, k), true, 12)} ${EST_TXT[estP(p, k)]}</td></tr>`);
+    pron = `<div class="pron"><h4>Pronóstico para los próximos 7 días</h4>
+      <div class="pron-g">
+        <div class="pg-1"><small>Nivel esperado el ${fecha(N.dias[x.kf], true)}</small><span class="num">~${fmt(x.fin)} m</span>${rango}<small>${tend} respecto de ${t === HOY ? "hoy" : "ese día"}</small></div>
+        <div><small>Máximo</small><span class="num">~${fmt(x.max)} m</span><small>${fecha(N.dias[x.kmx], true)} · ${EST_TXT[ef]}</small></div>
+        <div><small>Mínimo</small><span class="num">~${fmt(x.min)} m</span><small>${fecha(N.dias[x.kmn], true)}</small></div>
+      </div>
+      <table class="pr"><thead><tr><th>Día</th><th>Nivel</th><th>Rango</th><th>Estado</th></tr></thead><tbody>${filas.join("")}</tbody></table>
+      <p class="nota">${FUENTE_PR[x.fuente]} Puede cambiar en la próxima actualización (cada 4 horas).</p></div>`;
+  } else pron = `<div class="pron"><h4>Pronóstico</h4><p class="nota">No hay pronóstico oficial ni de modelo confiable para esta escala. Mostramos la última lectura.</p></div>`;
   const pill = `<span class="pill ${EST_PILL[e]}">${icoP(e, false, 12)} ${EST_TXT[e]}${hueco && h != null ? " · estimado" : ""}</span>`;
   mostrarFicha(CAB(pill, `Escala de ${esc(p.nom)}`, `Río ${RIO[p.rio]} · Prefectura Naval, vía INA`) + `<div class="fscroll"><div class="fb">
     <div class="grande"><span class="v num">${h == null ? "sin dato" : (hueco ? "~" : "") + fmt(h) + " m"}</span><span class="nota">${d1 == null ? "" : Math.abs(d1) < .03 ? "Estable en 24 h" : (d1 > 0 ? "Sube " : "Baja ") + fmt(Math.abs(d1)) + " m en 24 h"}${d7 == null ? "" : " · " + (d7 > 0 ? "+" : "") + fmt(d7) + " m en 7 días"}</span></div>
     <p class="nota">${fuente}</p>
+    ${pron}
     <div class="datos"><div><small>Alerta</small><span class="num">${p.al == null ? "s/d" : fmt(p.al)}</span></div><div><small>Evacuación</small><span class="num">${p.ev == null ? "s/d" : fmt(p.ev)}</span></div><div><small>Máx. 3 años</small><span class="num">${p.max ? fmt(p.max[1]) : "s/d"}</span></div></div>
-    <div class="bloque chart"><h4>Últimos 30 días y próximos 30</h4>${chartP(p, t)}</div>
-    ${prox.length ? `<div class="bloque"><h4>Próximos días</h4><table class="pr"><thead><tr><th>Día</th><th>Altura</th><th>Estado</th><th>Fuente</th></tr></thead><tbody>${prox.join("")}</tbody></table></div>` : `<p class="nota">No hay pronóstico para esta escala.</p>`}
+    <div class="bloque chart"><h4>Últimos 30 días y próximos 30 (banda: rango del pronóstico)</h4>${chartP(p, t)}</div>
     <p class="nota">${cerca.length ? `${cerca.length} barrios populares usan esta escala: <b>${r2.length}</b> tendrían agua ese día y <b>${r1.length}</b> quedarían cerca.` : "No hay barrios populares estimados con esta escala."} La altura se lee contra la alerta y la evacuación de este puerto: no la compares con la de otro.</p>
-    ${cerca.length ? `<button class="btn" type="button" id="b-bs">Ver esos barrios en el mapa</button>` : ""}
+    ${cerca.length ? `<button class="btn" type="button" id="b-bs">Ver esos barrios</button>` : ""}
     <div class="acciones">${i > 0 ? `<button class="btn" type="button" data-vec="${mismo[i - 1].id}">↑ ${esc(mismo[i - 1].nom)}</button>` : ""}${i < mismo.length - 1 ? `<button class="btn" type="button" data-vec="${mismo[i + 1].id}">↓ ${esc(mismo[i + 1].nom)}</button>` : ""}</div>
     <div class="acciones"><a class="btn pri" href="puerto/${p.slug}/">Página de ${esc(p.nom)}</a><button class="btn" type="button" id="b-copiar">Copiar enlace</button></div>
   </div></div>`);
   $$("#ficha [data-vec]").forEach((x) => x.onclick = () => abrirPuerto(+x.dataset.vec, true));
-  $("#b-bs")?.addEventListener("click", () => { encuadrar(cerca); cargarContornos(); });
+  $("#b-bs")?.addEventListener("click", () => { cerrarFicha(); setModo("barrios"); encuadrar(cerca); cargarContornos(); });
   $("#b-copiar").onclick = (ev) => copiar(ev.currentTarget, BASEURL + "/puerto/" + p.slug + "/");
 }
 addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#ficha").hidden) cerrarFicha(); });
 
 // ---------------------------------------------------------------- hoja inferior (celular)
-const ALTOS = () => ({ peek: 210, mid: Math.round(innerHeight * .52), full: innerHeight - 64 });
+const ALTOS = () => ({ peek: 262, mid: Math.round(innerHeight * .52), full: innerHeight - 64 });
 function altoHoja() { const el = !$("#ficha").hidden ? $("#ficha") : $("#panel"); return MOVIL.matches ? ALTOS()[el.dataset.alto || "mid"] : 0; }
 function aplicarAlto(el) { if (!MOVIL.matches) return; const h = ALTOS()[el.dataset.alto]; document.documentElement.style.setProperty("--hoja", h + "px"); $("#tiempo").hidden = el.dataset.alto === "full"; }
 function setAlto(a) { S.alto = a; const el = !$("#ficha").hidden ? $("#ficha") : $("#panel"); el.dataset.alto = a; aplicarAlto(el); }
@@ -1076,18 +1154,18 @@ function arrastreFicha(e) {
     const h = h0 + y0 - ev.clientY, A = ALTOS(); setAlto(Object.entries(A).sort((a, b) => Math.abs(a[1] - h) - Math.abs(b[1] - h))[0][0]); };
   addEventListener("pointermove", mv); addEventListener("pointerup", up);
 }
+$("#q").addEventListener("keydown", (e) => { if (S.modo === "puertos" && e.key === "Enter") { const f = $("#lista-p [data-p]"); if (f) abrirPuerto(+f.dataset.p, true); } });
 $("#q").addEventListener("focus", () => { if (MOVIL.matches && S.alto !== "full") setAlto("full"); });
 function modo() {
-  if (MOVIL.matches) { $("#panel").dataset.alto = S.alto; aplicarAlto($("#ficha").hidden ? $("#panel") : $("#ficha")); $("#ley").open = true; }
+  if (MOVIL.matches) { $("#panel").dataset.alto = S.alto; aplicarAlto($("#ficha").hidden ? $("#panel") : $("#ficha")); }
   else { document.documentElement.style.removeProperty("--hoja"); $("#panel").hidden = false; $("#tiempo").hidden = false; }
   hist();
 }
 MOVIL.addEventListener("change", modo);
 if (MOVIL.matches) S.alto = "peek";
 modo();
-$("#b-ref").onclick = () => { const l = $("#ley"), ab = !l.classList.contains("abierta"); l.classList.toggle("abierta", ab); $("#b-ref").setAttribute("aria-expanded", String(ab)); };
-$("#ley").addEventListener("toggle", () => { try { localStorage.setItem("ley", $("#ley").open ? "1" : "0"); } catch (e) { /* sin almacenamiento */ } });
 
+leyenda();
 // ---------------------------------------------------------------- frescura de los datos
 (function () {
   const g = new Date(N.generado), h = (Date.now() - g) / 36e5;
@@ -1097,7 +1175,7 @@ $("#ley").addEventListener("toggle", () => { try { localStorage.setItem("ley", $
 
 // ---------------------------------------------------------------- arranque del mapa
 map.on("load", () => {
-  iconos(); capas(); recolorear(); pintarDia(); encuadreInicial();
+  iconos(); capas(); recolorear(); modoMapa(); pintarDia(); encuadreInicial();
   const h = (location.hash || "").slice(1);
   if (/^b\d+$/.test(h)) abrirBarrio(+h.slice(1), true);
   else if (/^p\d+$/.test(h)) abrirPuerto(+h.slice(1), true);
@@ -1107,7 +1185,7 @@ map.on("zoomend", () => { if (map.getZoom() >= 10.5) cargarContornos(); });
 map.on("click", "m-b", (e) => { const f = e.features[0]; if (f) abrirBarrio(f.properties.id, false); });
 map.on("click", "m-cont-f", (e) => { const f = e.features[0]; if (f) abrirBarrio(f.properties.id, false); });
 map.on("click", "m-p", (e) => { const f = e.features[0]; if (f) abrirPuerto(f.properties.id, false); });
-map.on("click", "m-loc", (e) => { const f = e.features[0]; if (!f) return; const l = LOC[f.properties.k]; abrirSec("barrios"); S.abiertos = new Set([l.k]); lista(); encuadrar(l.bs.filter((b) => b.S[S.t] >= 1)); });
+map.on("click", "m-loc", (e) => { const f = e.features[0]; if (!f) return; const l = LOC[f.properties.k]; setModo("barrios", true); S.abiertos = new Set([l.k]); lista(); encuadrar(l.bs.filter((b) => b.S[S.t] >= 1)); });
 for (const l of ["m-b", "m-cont-f", "m-p", "m-loc"]) { map.on("mouseenter", l, () => map.getCanvas().style.cursor = "pointer"); map.on("mouseleave", l, () => map.getCanvas().style.cursor = ""); }
 // tema
 const retema = () => { colores(); if (!map.isStyleLoaded()) return; iconos(); recolorear();

@@ -62,7 +62,7 @@ def estado_puerto(p: dict, t: int) -> str:
     h = p["H"][t]
     if h is None:
         return "sin_dato"
-    medido = p["src"][t] == "m"
+    medido = p["src"][t] in ("m", "u")
     if p.get("ev") is not None and h >= p["ev"]:
         return "evacuacion" if medido else "alerta"
     if p.get("al") is not None and h >= p["al"]:
@@ -74,6 +74,10 @@ def estado_puerto(p: dict, t: int) -> str:
 
 ESTADO_TXT = {"normal": "Normal", "atencion": "Atención", "alerta": "Alerta", "evacuacion": "Evacuación",
               "sin_umbral": "Sin umbral oficial", "sin_dato": "Sin dato"}
+
+
+def activos(N: dict) -> list[dict]:
+    return [p for p in N["puertos"] if p.get("activo", True) and any(v is not None for v in p["H"])]
 
 
 def ultimo_medido(p: dict, hoy: int) -> int | None:

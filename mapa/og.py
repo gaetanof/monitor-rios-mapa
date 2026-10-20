@@ -96,7 +96,7 @@ def construir():
     im.save(out / "portada.png", optimize=True)
 
     for rio, nom_r in RIO_NOMBRE.items():
-        ps = [p for p in N["puertos"] if p["rio"] == rio and any(v is not None for v in p["H"])]
+        ps = [p for p in N["puertos"] if p["rio"] == rio and p.get("activo", True) and any(v is not None for v in p["H"])]
         res = [(p, resumen_puerto(p, N, hoy)) for p in ps]
         im, d = lienzo()
         d.text((64, 110), f"Altura del río {nom_r} hoy", font=f(64, "ExtraBold"), fill=INK)
@@ -113,7 +113,7 @@ def construir():
         im.save(out / "rio" / f"{rio}.png", optimize=True)
 
     for p in N["puertos"]:
-        if not any(v is not None for v in p["H"]):
+        if not any(v is not None for v in p["H"]) or not p.get("activo", True):
             continue
         r = resumen_puerto(p, N, hoy)
         im, d = lienzo()
