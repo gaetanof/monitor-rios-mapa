@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <!--HEAD-->
+<script>try { const t = localStorage.getItem("tema"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) { /* sin almacenamiento */ }</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
@@ -58,6 +59,8 @@ a{color:var(--water-text)}
 .asa{display:none}
 .cab{padding:14px 16px 12px;display:grid;gap:10px;border-bottom:1px solid var(--line);flex:none}
 .marca{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.tema{border:1px solid var(--line-2);background:var(--surface);border-radius:999px;height:32px;padding:0 10px;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.tema:hover{background:var(--surface-2)}
 .marca a{margin-left:auto;font-weight:600;font-size:13px;color:var(--water-text);min-height:32px;display:inline-flex;align-items:center}
 h1{margin:0;font-size:26px;line-height:1.1;font-weight:800;letter-spacing:-.025em}
 .sub{margin:-4px 0 0;font-size:13.5px;color:var(--ink-2);text-wrap:balance}
@@ -101,10 +104,15 @@ h1{margin:0;font-size:26px;line-height:1.1;font-weight:800;letter-spacing:-.025e
   display:inline-flex;align-items:center;gap:6px;color:var(--ink-2)}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 .grupo{margin:0;padding:12px 16px 6px;font-size:13px;font-weight:700;color:var(--ink-2);position:sticky;top:0;background:var(--surface);z-index:1}
-.loc{border:0;background:var(--surface-2);width:100%;text-align:left;display:flex;align-items:center;gap:8px;padding:8px 16px;min-height:40px;
+.loc .chev{width:16px;height:16px;flex:none;color:var(--ink-3);transition:transform var(--t) var(--ease)}
+.loc[aria-expanded="true"] .chev{transform:rotate(90deg)}
+.loc .nom{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cuenta{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:700;white-space:nowrap}
+.cuenta.r{background:var(--st-evac);color:var(--on-evac)}.cuenta.o{border:1.5px solid var(--st-alerta);color:var(--t-alerta)}
+.loc{border:0;background:var(--surface-2);width:100%;text-align:left;display:flex;align-items:center;gap:8px;padding:8px 16px;min-height:48px;
   font-size:13px;color:var(--ink-2);border-top:1px solid var(--line)}
 .loc b{color:var(--ink);font-size:14px}
-.loc .cnt{margin-left:auto;white-space:nowrap}
+.loc .cnt{margin-left:auto;display:flex;gap:4px;flex:none}
 .fila{display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:none;
   padding:10px 16px;min-height:60px;border-top:1px solid var(--line);color:inherit;text-decoration:none}
 a.fila{grid-template-columns:minmax(0,1fr) auto}
@@ -247,6 +255,7 @@ table.pr th{font-size:12px;color:var(--ink-3);font-weight:600}
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 15c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2" fill="none" stroke="var(--water)" stroke-width="2.4" stroke-linecap="round"/><path d="M2 20c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2" fill="none" stroke="var(--water)" stroke-width="2.4" stroke-linecap="round" opacity=".45"/><rect x="11" y="3" width="2" height="9" rx="1" fill="var(--ink)"/></svg>
         Monitor de Ríos
         <a href="como-se-calcula/">Cómo se calcula</a>
+        <button class="tema" type="button" id="b-tema" aria-label="Cambiar a modo claro u oscuro"></button>
       </div>
       <div class="modos" role="tablist" aria-label="Qué querés ver">
         <button role="tab" type="button" id="m-barrios" aria-selected="true" aria-controls="v-barrios">
@@ -548,7 +557,7 @@ function fcLocs() {
     const r2 = l.bs.filter((b) => b.S[t] === 2), r1 = l.bs.filter((b) => b.S[t] === 1);
     if (!r2.length && !r1.length) continue;
     const fam = [...r2, ...r1].reduce((s, b) => s + (b.fam || 0), 0);
-    f.push({ type: "Feature", properties: { k: l.k, n: r2.length + r1.length, rojo: r2.length ? 1 : 0, r: Math.min(22, 7 + 1.1 * Math.sqrt(fam / 10)), nom: l.n },
+    f.push({ type: "Feature", properties: { k: l.k, n: r2.length + r1.length, rojo: r2.length ? 1 : 0, nom: l.n },
       geometry: { type: "Point", coordinates: l.c } });
   }
   return { type: "FeatureCollection", features: f };
@@ -561,28 +570,32 @@ function capas() {
   map.addSource("m-tr", { type: "geojson", data: TR, promoteId: "i" });
   const ancho = ["interpolate", ["linear"], ["zoom"], 4, 2, 7, 4, 10, 7, 13, 12];
   map.addLayer({ id: "m-tr-halo", type: "line", source: "m-tr", layout: { "line-cap": "round", "line-join": "round" },
-    paint: { "line-color": "#ffffff", "line-opacity": .8, "line-width": ["interpolate", ["linear"], ["zoom"], 4, 5, 7, 7, 10, 10, 13, 15] } }, antes);
+    paint: { "line-color": C.oscuro ? C.land : "#ffffff", "line-opacity": .8, "line-width": ["interpolate", ["linear"], ["zoom"], 4, 5, 7, 7, 10, 10, 13, 15] } }, antes);
   map.addLayer({ id: "m-tr", type: "line", source: "m-tr", layout: { "line-cap": "round", "line-join": "round" },
     paint: { "line-width": ancho, "line-color": colorTramo() } }, antes);
   map.addSource("m-cont", { type: "geojson", data: { type: "FeatureCollection", features: [] }, promoteId: "id" });
-  map.addLayer({ id: "m-cont-f", type: "fill", source: "m-cont", minzoom: 11, paint: { "fill-color": colorBF(), "fill-opacity": ["interpolate", ["linear"], ["zoom"], 11, 0, 12, .45] } }, antes);
+  map.addLayer({ id: "m-cont-f", type: "fill", source: "m-cont", minzoom: 11, paint: { "fill-color": colorBF(), "fill-opacity": ["interpolate", ["linear"], ["zoom"], 11, 0, 12, ["match", ["coalesce", ["feature-state", "s"], -1], 2, .38, 1, .3, .1]] } }, antes);
   map.addLayer({ id: "m-cont-l", type: "line", source: "m-cont", minzoom: 11, paint: { "line-color": colorBF(),
-    "line-width": ["case", ["boolean", ["feature-state", "sel"], false], 3.5, 1.5] } }, antes);
+    "line-width": ["case", ["boolean", ["feature-state", "sel"], false], 3.5, ["match", ["coalesce", ["feature-state", "s"], -1], 2, 2, 1, 2, .8]],
+    "line-opacity": ["match", ["coalesce", ["feature-state", "s"], -1], 2, 1, 1, 1, .5] } }, antes);
   map.addSource("m-b", { type: "geojson", data: fcBarrios(), promoteId: "id" });
-  map.addLayer({ id: "m-b", type: "circle", source: "m-b", minzoom: 8.6, filter: ["!=", ["get", "s"], -9],
+  map.addLayer({ id: "m-b", type: "circle", source: "m-b", minzoom: 8.6, maxzoom: 12.3, filter: ["!=", ["get", "s"], -9],
     layout: { "circle-sort-key": ["get", "s"] }, paint: {
       "circle-radius": ["*", ["case", ["==", ["get", "sel"], 1], 1.5, 1], ["match", ["get", "s"], 2, ["+", 6, ["min", 2, ["/", ["sqrt", ["get", "f"]], 30]]], 1, 5, 0, 2.6, 2.6]],
       "circle-color": ["match", ["get", "s"], 2, C.evac, 1, C.surface, 0, C.lejos, "rgba(0,0,0,0)"],
       "circle-stroke-color": ["case", ["==", ["get", "sel"], 1], C.ink, ["match", ["get", "s"], 2, C.ink, 1, C.alerta, 0, "rgba(0,0,0,0)", C.sindato]],
       "circle-stroke-width": ["case", ["==", ["get", "sel"], 1], 3, ["match", ["get", "s"], 2, 1.5, 1, 2.6, 0, 0, 1.2]],
-      "circle-opacity": ["interpolate", ["linear"], ["zoom"], 8.6, 0, 9.2, ["match", ["get", "s"], 0, .6, 1], 12.5, ["match", ["get", "s"], 0, .6, 1], 13.5, 0],
-      "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], 8.6, 0, 9.2, 1, 12.5, 1, 13.5, 0] } });
-  map.addSource("m-loc", { type: "geojson", data: fcLocs() });
+      "circle-opacity": ["interpolate", ["linear"], ["zoom"], 8.6, 0, 9.2, ["match", ["get", "s"], 0, .6, 1], 11.6, ["match", ["get", "s"], 0, .6, 1], 12.2, 0],
+      "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], 8.6, 0, 9.2, 1, 11.6, 1, 12.2, 0] } });
+  // localidades vecinas (Resistencia, Barranqueras, Vilelas, Corrientes...) se juntan en un solo círculo con poco zoom
+  const CL = { type: "geojson", data: fcLocs(), cluster: true, clusterRadius: 38, clusterMaxZoom: 8,
+    clusterProperties: { n: ["+", ["get", "n"]], rojo: ["max", ["get", "rojo"]] } };
+  map.addSource("m-loc", CL);
   map.addLayer({ id: "m-loc", type: "circle", source: "m-loc", maxzoom: 9.4, paint: {
-    "circle-radius": ["get", "r"], "circle-color": ["case", ["==", ["get", "rojo"], 1], C.evac, C.alerta],
+    "circle-radius": ["min", 20, ["+", 9, ["*", 1.8, ["sqrt", ["get", "n"]]]]], "circle-color": ["case", ["==", ["get", "rojo"], 1], C.evac, C.alerta],
     "circle-stroke-color": "#ffffff", "circle-stroke-width": 2, "circle-opacity": ["interpolate", ["linear"], ["zoom"], 8.8, 1, 9.4, 0],
     "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], 8.8, 1, 9.4, 0] } });
-  map.addSource("m-loc-t", { type: "geojson", data: fcLocs() });
+  map.addSource("m-loc-t", { ...CL, data: fcLocs() });
   map.addLayer({ id: "m-loc-n", type: "symbol", source: "m-loc-t", maxzoom: 9.2, layout: { "text-field": ["to-string", ["get", "n"]], "text-font": FUENTES.bold,
     "text-size": 12, "text-allow-overlap": true, "text-ignore-placement": true }, paint: { "text-color": ["case", ["==", ["get", "rojo"], 1], "#ffffff", "#1D2933"] } });
   map.addSource("m-p", { type: "geojson", data: fcPuertos(), promoteId: "id" });
@@ -736,8 +749,9 @@ function lista() {
   }
   cont.innerHTML = `<h3 class="grupo">Barrios a mirar primero, por localidad</h3>` + grupos.map((g, i) => {
     const ab = S.abiertos.has(g.l.k) || (S.abiertos.size === 0 && i < 3);
-    return `<button class="loc" type="button" data-loc="${esc(g.l.k)}" aria-expanded="${ab}"><svg class="chev" style="transform:rotate(${ab ? 90 : 0}deg)" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-      <span><b>${esc(g.l.n)}</b>, ${esc(g.l.prov)}</span><span class="cnt">${g.r2.length ? `<b class="t-evac">${g.r2.length}</b> con agua · ` : ""}${g.bs.length - g.r2.length} cerca</span></button>` +
+    const nc = g.bs.length - g.r2.length;
+    return `<button class="loc" type="button" data-loc="${esc(g.l.k)}" aria-expanded="${ab}"><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="nom"><b>${esc(g.l.n)}</b> · ${esc(g.l.prov)}</span><span class="cnt">${g.r2.length ? `<span class="cuenta r" title="barrios con agua probable">${g.r2.length} con agua</span>` : ""}${nc ? `<span class="cuenta o" title="barrios cerca del agua">${nc} cerca</span>` : ""}</span></button>` +
       (ab ? g.bs.map((b) => filaB(b, t)).join("") : "");
   }).join("") + `<p class="vacio">El orden no es una evaluación oficial de riesgo. Es una estimación con un modelo de elevación.</p>`;
 }
@@ -1166,6 +1180,22 @@ if (MOVIL.matches) S.alto = "peek";
 modo();
 
 leyenda();
+// ---------------------------------------------------------------- tema claro, oscuro o el del sistema
+const SOL = '<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const LUNA = '<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg>';
+function pintarTema() {
+  const t = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  $("#b-tema").innerHTML = t === "dark" ? SOL + "Claro" : LUNA + "Oscuro";
+  $("#b-tema").setAttribute("aria-label", t === "dark" ? "Pasar a modo claro" : "Pasar a modo oscuro");
+}
+$("#b-tema").onclick = () => {
+  const actual = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const nuevo = actual === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = nuevo;
+  try { localStorage.setItem("tema", nuevo); } catch (e) { /* sin almacenamiento */ }
+  pintarTema();
+};
+pintarTema();
 // ---------------------------------------------------------------- frescura de los datos
 (function () {
   const g = new Date(N.generado), h = (Date.now() - g) / 36e5;
@@ -1185,11 +1215,13 @@ map.on("zoomend", () => { if (map.getZoom() >= 10.5) cargarContornos(); });
 map.on("click", "m-b", (e) => { const f = e.features[0]; if (f) abrirBarrio(f.properties.id, false); });
 map.on("click", "m-cont-f", (e) => { const f = e.features[0]; if (f) abrirBarrio(f.properties.id, false); });
 map.on("click", "m-p", (e) => { const f = e.features[0]; if (f) abrirPuerto(f.properties.id, false); });
-map.on("click", "m-loc", (e) => { const f = e.features[0]; if (!f) return; const l = LOC[f.properties.k]; setModo("barrios", true); S.abiertos = new Set([l.k]); lista(); encuadrar(l.bs.filter((b) => b.S[S.t] >= 1)); });
+map.on("click", "m-loc", (e) => { const f = e.features[0]; if (!f) return;
+  if (f.properties.cluster) { map.easeTo({ center: f.geometry.coordinates, zoom: Math.min(10, map.getZoom() + 2.2), duration: QUIETO.matches ? 0 : 600 }); return; }
+  const l = LOC[f.properties.k]; setModo("barrios", true); S.abiertos = new Set([l.k]); lista(); encuadrar(l.bs.filter((b) => b.S[S.t] >= 1)); });
 for (const l of ["m-b", "m-cont-f", "m-p", "m-loc"]) { map.on("mouseenter", l, () => map.getCanvas().style.cursor = "pointer"); map.on("mouseleave", l, () => map.getCanvas().style.cursor = ""); }
 // tema
-const retema = () => { colores(); if (!map.isStyleLoaded()) return; iconos(); recolorear();
-  map.setPaintProperty("m-tr", "line-color", colorTramo()); map.setPaintProperty("m-cont-f", "fill-color", colorBF()); map.setPaintProperty("m-cont-l", "line-color", colorBF());
+const retema = () => { colores(); pintarTema(); if (!map.getLayer("m-b")) return; iconos(); recolorear();
+  map.setPaintProperty("m-tr", "line-color", colorTramo()); map.setPaintProperty("m-tr-halo", "line-color", C.oscuro ? C.land : "#ffffff"); map.setPaintProperty("m-cont-f", "fill-color", colorBF()); map.setPaintProperty("m-cont-l", "line-color", colorBF());
   map.setPaintProperty("m-b", "circle-color", ["match", ["get", "s"], 2, C.evac, 1, C.surface, 0, C.lejos, "rgba(0,0,0,0)"]);
   for (const id of ["m-p-lab1", "m-p-lab0"]) { map.setPaintProperty(id, "text-color", C.ink); map.setPaintProperty(id, "text-halo-color", C.surface); } };
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", retema);
