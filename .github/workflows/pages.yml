@@ -1,0 +1,70 @@
+name: publicar
+
+# Cada 4 h: alturas y pronósticos nuevos, y la página publicada en GitHub Pages.
+# Los barrios (RENABAP + elevación) se recalculan sólo si se pide a mano.
+on:
+  schedule:
+    - cron: "37 1,5,9,13,17,21 * * *"
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      barrios:
+        description: "Recalcular barrios (RENABAP + elevación) y guardarlos en el repo"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  armar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      MAPA_CACHE: ${{ github.workspace }}/mapa/.cache
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install numpy pillow matplotlib
+      - name: Caché (escalas, curvas, mosaicos)
+        uses: actions/cache@v4
+        with:
+          path: mapa/.cache
+          key: mapa-${{ github.run_id }}
+          restore-keys: mapa-
+      - name: Escalas (ancla SRTM e historial)
+        run: python -m mapa.puertos
+      - name: Barrios
+        if: ${{ inputs.barrios }}
+        run: |
+          python -m mapa.barrios
+          git config user.name "monitor-rios-bot"
+          git config user.email "monitor-rios-bot@users.noreply.github.com"
+          git add mapa/datos/barrios.json
+          git commit -m "barrios recalculados" && git push || echo "sin cambios"
+      - name: Alturas y pronóstico
+        run: python -m mapa.niveles
+      - name: Armar la página
+        run: python -m mapa.armar web
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: mapa/dist
+
+  publicar:
+    needs: armar
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
